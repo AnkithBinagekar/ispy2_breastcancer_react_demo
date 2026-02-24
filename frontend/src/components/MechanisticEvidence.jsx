@@ -1,10 +1,13 @@
+// frontend/src/components/MechanisticEvidence.jsx
+
 import { useState } from "react";
 
 export default function MechanisticEvidence() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div>
+    <div style={{ marginTop: 16 }}>
+
       <div
         style={{
           display: "flex",
@@ -15,23 +18,30 @@ export default function MechanisticEvidence() {
         onClick={() => setOpen(!open)}
       >
         <h3 className="me-header">Mechanistic Evidence Layer</h3>
-        <span style={{ fontSize: 14 }}>{open ? "▼" : "▶"}</span>
+        <span style={{ fontSize: 13 }}>{open ? "▼" : "▶"}</span>
       </div>
 
+      <p style={{ fontSize: 12, opacity: 0.7, marginTop: 4 }}>
+        Investor-friendly bridge between evidence and scenario deltas.
+      </p>
+
       {open && (
-        <div style={{ marginTop: 10, fontSize: 13, color: "#475569" }}>
-          <p>
-            Compact bridge between baseline molecular signals and scenario what-if
-            deltas. Heuristic only (not causal proof).
-          </p>
+        <div style={{ marginTop: 10, fontSize: 13 }}>
 
           <ul>
-            <li>HRD ↑ → PARP sensitivity</li>
-            <li>PI3K axis ↑ → AKT/PI3K inhibitor benefit</li>
-            <li>Immune cytotoxic ↓ → limited IO benefit</li>
+            <li><b>HRD / DNA repair ↑</b> → PARP inhibitor plausibility</li>
+            <li><b>PI3K axis ↑</b> → PI3K/AKT inhibitor plausibility</li>
+            <li><b>Immune cytotoxic ↓</b> → limited IO benefit</li>
+            <li><b>Proliferation ↑</b> → chemo sensitivity context</li>
           </ul>
+
+          <p style={{ fontSize: 12, opacity: 0.7 }}>
+            Heuristic interpretation only; not causal proof.
+          </p>
+
         </div>
       )}
+
     </div>
   );
 }

@@ -1,81 +1,74 @@
-// src/components/ResponseCard.jsx
-import { useState } from "react";
+// frontend/src/components/ResponseCard.jsx
 
 export default function ResponseCard({ regimens }) {
-  const [scenario, setScenario] = useState("standard");
-
   if (!regimens || !regimens.pcr_probability_by_regimen) return null;
 
-  const preds = Object.entries(regimens.pcr_probability_by_regimen);
-  if (preds.length === 0) return null;
+  const entries = Object.entries(regimens.pcr_probability_by_regimen);
 
-  let best = preds[0];
-  preds.forEach((e) => {
+  if (!entries.length) return null;
+
+  // best ranked
+  let best = entries[0];
+  entries.forEach((e) => {
     if (e[1] > best[1]) best = e;
   });
 
-  const bestRegimen = best[0];
   const bestScore = Math.round(best[1] * 100);
+  const topRegimen = best[0];
 
-  // TEMP static values (will connect later)
-  const scenarioScores = {
-    standard: bestScore,
-    parp: Math.max(bestScore - 2, 0),
-    pi3k: Math.min(bestScore + 2, 100)
-  };
+  // For now: derive simple what-if from top 3
+  const sorted = [...entries].sort((a, b) => b[1] - a[1]);
+
+  const standard = sorted[0];
+  const parp = sorted[1] || sorted[0];
+  const pi3k = sorted[2] || sorted[0];
+
+  const Bar = ({ label, value }) => (
+    <div className="scenario-row">
+      <span>{label}</span>
+
+      <div className="scenario-bar-bg">
+        <div
+          className="scenario-bar-fill"
+          style={{ width: `${Math.round(value * 100)}%` }}
+        />
+      </div>
+
+      <span className="scenario-val">
+        {Math.round(value * 100)}%
+      </span>
+    </div>
+  );
 
   return (
     <div className="response-card">
+
       <h3>Predicted pCR (best ranked)</h3>
+
       <div className="pcr-score">{bestScore}%</div>
-      <p className="pcr-sub">Top regimen: {bestRegimen}</p>
 
-      {/* WHAT-IF BUTTONS */}
+      <div className="pcr-sub">
+        Conditioned on baseline mRNA signatures + clinical context
+      </div>
+
+      <div className="pcr-sub" style={{ marginTop: 6 }}>
+        Top regimen: <b>{topRegimen}</b>
+      </div>
+
+      {/* What-if buttons (visual only for now) */}
       <div className="whatif-row">
-        <button
-          className={scenario === "standard" ? "whatif active" : "whatif"}
-          onClick={() => setScenario("standard")}
-        >
-          Standard
-        </button>
-
-        <button
-          className={scenario === "parp" ? "whatif active" : "whatif"}
-          onClick={() => setScenario("parp")}
-        >
-          + PARP
-        </button>
-
-        <button
-          className={scenario === "pi3k" ? "whatif active" : "whatif"}
-          onClick={() => setScenario("pi3k")}
-        >
-          + PI3K
-        </button>
+        <button className="whatif active">Standard</button>
+        <button className="whatif">+ PARP</button>
+        <button className="whatif">+ PI3K</button>
       </div>
 
-      {/* SCENARIO BARS */}
+      {/* Scenario Bars */}
       <div className="scenario-bars">
-        {Object.entries(scenarioScores).map(([key, val]) => (
-          <div key={key} className="scenario-row">
-            <span className="scenario-label">
-              {key === "standard" ? "Standard" : key === "parp" ? "+ PARP" : "+ PI3K"}
-            </span>
-
-            <div className="scenario-bar-bg">
-              <div
-                className="scenario-bar-fill"
-                style={{
-                  width: `${val}%`,
-                  opacity: scenario === key ? 1 : 0.4
-                }}
-              />
-            </div>
-
-            <span className="scenario-val">{val}%</span>
-          </div>
-        ))}
+        <Bar label="Standard" value={standard[1]} />
+        <Bar label="+ PARP" value={parp[1]} />
+        <Bar label="+ PI3K" value={pi3k[1]} />
       </div>
+
     </div>
   );
 }

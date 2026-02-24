@@ -9,7 +9,7 @@ import ResponseCard from "./components/ResponseCard";
 import RegimenBars from "./components/RegimenBars";
 import RegimenBuilder from "./components/RegimenBuilder";
 import AuditProvenance from "./components/AuditProvenance";
-
+import PatientData from "./components/PatientData";
 import "./App.css";
 
 function App() {
@@ -51,39 +51,110 @@ function App() {
     <div className="app-root">
       {/* ========== SIDEBAR ========== */}
       <aside className="sidebar">
-        <h3>Data</h3>
 
-        <label>
-          <input type="radio" defaultChecked /> Load cohort JSON
-        </label>
+  <h3>Data</h3>
 
-        <label>
-          <input type="radio" /> Load single patient JSON
-        </label>
+  {/* Mode */}
+  <label>
+    <input type="radio" name="mode" defaultChecked />
+    Load cohort JSON
+  </label>
 
-        <p style={{ marginTop: 12 }}>Select patient</p>
+  <label>
+    <input type="radio" name="mode" />
+    Load single patient JSON
+  </label>
 
-        <select
-          value={selectedPatient}
-          onChange={(e) => setSelectedPatient(e.target.value)}
-        >
-          {patients.map((p) => (
-            <option key={p}>{p}</option>
-          ))}
-        </select>
+  {/* Path presets */}
+  <details style={{ marginTop: 12 }}>
+    <summary>Path presets (from run steps)</summary>
 
-        <label>
-          <input type="checkbox" /> Enable Model-A scoring
-        </label>
+    <p style={{ fontSize: 12 }}>
+      Expected cohort output (step 4):
+      <br />
+      <code>ispy2_top20_v7_optionB_fullcohort_with_modelA.json</code>
+    </p>
 
-        <label>
-          <input type="checkbox" /> Show regimen leaderboard
-        </label>
+    <p style={{ fontSize: 12 }}>
+      Expected single patient path (step 8):
+      <br />
+      <code>./live_patients/patient_records/&lt;patient_id&gt;.json</code>
+    </p>
 
-        <label>
-          <input type="checkbox" /> Show debug JSON
-        </label>
-      </aside>
+    <div style={{ display: "flex", gap: 8 }}>
+      <button>Use default cohort</button>
+      <button>Use sample patient</button>
+    </div>
+  </details>
+
+  {/* Paths */}
+  <p style={{ marginTop: 12 }}>Cohort JSON path</p>
+  <input
+    type="text"
+    defaultValue="ispy2_top20_v7_optionB_fullcohort_with_modelA.json"
+  />
+
+  <p style={{ marginTop: 12 }}>Single patient JSON path</p>
+  <input
+    type="text"
+    defaultValue="./live_patients/patient_records/382853.json"
+  />
+
+  {/* Run inference */}
+  <p style={{ fontSize: 12, marginTop: 12 }}>
+    Single-patient mode: click Run inference to generate predictions.
+  </p>
+  <button>Run inference</button>
+
+  <hr />
+
+  {/* Live scoring */}
+  <h4>Optional: Live Model-A scoring</h4>
+
+  <label>
+    <input type="checkbox" />
+    Enable Model-A scoring
+  </label>
+
+  <p>Models dir</p>
+  <input type="text" defaultValue="./out/models" />
+
+  <p>Infer script</p>
+  <input type="text" defaultValue="./03_infer_modelA.py" />
+
+  <p>Regimen vocab (optional)</p>
+  <input type="text" defaultValue="./regimen_vocab.json" />
+
+  <p>Use modalities</p>
+  <input type="text" defaultValue="mrna,rppa" />
+
+  <hr />
+
+  {/* Display */}
+  <h4>Display</h4>
+
+  <label>
+    <input type="checkbox" />
+    Show regimen leaderboard (table)
+  </label>
+
+  <label>
+    <input type="checkbox" />
+    Show debug JSON
+  </label>
+
+  {/* Inputs used */}
+  <details style={{ marginTop: 12 }}>
+    <summary>Inputs used (demo)</summary>
+
+    <ul>
+      <li>Regimen probabilities</li>
+      <li>Baseline omics (mRNA / RPPA)</li>
+      <li>Clinical context</li>
+    </ul>
+  </details>
+
+</aside>
 
       {/* ========== MAIN ========== */}
       <main className="main-content">
@@ -106,14 +177,18 @@ function App() {
 
           {/* MIDDLE */}
           <div className="card">
-            <h3>Patient Data</h3>
 
-            <p><b>Patient ID:</b> {selectedPatient}</p>
+  <PatientData
+    patientId={selectedPatient}
+    subtype={omics?.subtype}
+    arm={omics?.arm}
+  />
 
-            <MechanisticAlignment drivers={drivers} />
+  <MechanisticAlignment drivers={drivers} />
 
-            <MechanisticEvidence />
-          </div>
+  <MechanisticEvidence />
+
+</div>
 
           {/* RIGHT */}
           <ResponseCard regimens={regimens} />

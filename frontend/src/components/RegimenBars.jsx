@@ -1,48 +1,43 @@
+// frontend/src/components/RegimenBars.jsx
+
 export default function RegimenBars({ regimens }) {
   if (!regimens || !regimens.pcr_probability_by_regimen) return null;
 
-  const entries = Object.entries(
-    regimens.pcr_probability_by_regimen
-  );
+  const entries = Object.entries(regimens.pcr_probability_by_regimen)
+    .sort((a, b) => b[1] - a[1]);
 
   return (
-    <div className="card">
+    <div>
+
       <h3>Regimen Leaderboard</h3>
 
-      {/* SCROLL CONTAINER */}
       <div className="regimen-list">
-        {entries.map(([name, value]) => (
-          <div key={name} style={{ marginBottom: "14px" }}>
-            <div style={{ fontSize: "13px", marginBottom: "4px" }}>
-              {name}
+
+        {entries.map(([name, value], idx) => (
+          <div key={name} style={{ marginBottom: 12 }}>
+
+            <div style={{ fontSize: 13, marginBottom: 4 }}>
+              {idx === 0 && "★ "} {name}
             </div>
 
-            <div
-              style={{
-                background: "#e5e7eb",
-                height: "8px",
-                borderRadius: "6px",
-                overflow: "hidden",
-              }}
-            >
+            <div className="scenario-bar-bg">
               <div
+                className="scenario-bar-fill"
                 style={{
-                  width: `${value * 100}%`,
-                  background:
-                    name === regimens.top_regimen
-                      ? "#2563eb"
-                      : "#64748b",
-                  height: "100%",
+                  width: `${Math.round(value * 100)}%`
                 }}
               />
             </div>
 
-            <div style={{ fontSize: "12px", opacity: 0.7 }}>
+            <div style={{ fontSize: 12, opacity: 0.7, marginTop: 2 }}>
               {(value * 100).toFixed(1)}%
             </div>
+
           </div>
         ))}
+
       </div>
+
     </div>
   );
 }

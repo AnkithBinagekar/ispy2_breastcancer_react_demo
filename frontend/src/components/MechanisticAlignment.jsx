@@ -1,22 +1,46 @@
+// frontend/src/components/MechanisticAlignment.jsx
+
 export default function MechanisticAlignment({ drivers }) {
-  if (!drivers) return null;
+  if (!drivers || Object.keys(drivers).length === 0) return null;
+
+  const entries = Object.entries(drivers);
 
   return (
-    <div className="card">
+    <div>
+
       <h3>Mechanistic Alignment (Heuristic)</h3>
 
-      <p style={{ fontSize: "14px", opacity: 0.7 }}>
-        These notes provide plausibility context for the model's
-        regimen ranking using baseline omics signals.
+      <p style={{ fontSize: 13, opacity: 0.75 }}>
+        Plausibility context connecting baseline signature signals
+        to scenario what-if deltas. Heuristic only (not causal).
       </p>
 
-      <ul style={{ marginTop: "10px" }}>
-        {Object.entries(drivers).map(([key, value]) => (
-          <li key={key}>
-            <strong>{key.replace("_", " ")}:</strong> {value}
+      {/* Show first 2 bullets */}
+      <ul style={{ marginTop: 10 }}>
+        {entries.slice(0, 2).map(([k, v]) => (
+          <li key={k}>
+            <b>{k.replace(/_/g, " ")}:</b> {v}
           </li>
         ))}
       </ul>
+
+      {/* Expandable remainder */}
+      {entries.length > 2 && (
+        <details style={{ marginTop: 8 }}>
+          <summary style={{ cursor: "pointer", fontSize: 13 }}>
+            Show more rationale
+          </summary>
+
+          <ul style={{ marginTop: 8 }}>
+            {entries.slice(2).map(([k, v]) => (
+              <li key={k}>
+                <b>{k.replace(/_/g, " ")}:</b> {v}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+
     </div>
   );
 }

@@ -1,3 +1,5 @@
+// frontend/src/components/OmicsRadar.jsx
+
 import Plot from "react-plotly.js";
 
 export default function OmicsRadar({ omics }) {
@@ -30,16 +32,20 @@ export default function OmicsRadar({ omics }) {
     return Math.min(Math.max(v, 0), 1);
   });
 
+  // close loop
+  const thetaClosed = [...theta, theta[0]];
+  const rClosed = [...r, r[0]];
+
   return (
     <Plot
       data={[
         {
           type: "scatterpolar",
-          r,
-          theta,
+          r: rClosed,
+          theta: thetaClosed,
           fill: "toself",
-          fillcolor: "rgba(59,130,246,0.35)",
-          line: { color: "#3b82f6", width: 2 },
+          fillcolor: "rgba(59,130,246,0.28)",
+          line: { color: "#3b82f6", width: 2.5 },
           hoverinfo: "theta+r"
         }
       ]}
@@ -53,12 +59,12 @@ export default function OmicsRadar({ omics }) {
             gridcolor: "#e5e7eb"
           },
           angularaxis: {
-  direction: "clockwise",
-  rotation: 90,
-  tickfont: { color: "#475569", size: 11 },
-  gridcolor: "#e5e7eb",
-  tickpadding: 8
-}
+            direction: "clockwise",
+            rotation: 90,
+            tickfont: { color: "#475569", size: 11 },
+            gridcolor: "#e5e7eb",
+            tickpadding: 8
+          }
         },
         paper_bgcolor: "rgba(0,0,0,0)",
         plot_bgcolor: "rgba(0,0,0,0)",
