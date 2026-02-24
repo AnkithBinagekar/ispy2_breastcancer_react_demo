@@ -3,73 +3,67 @@ import Plot from "react-plotly.js";
 export default function OmicsRadar({ omics }) {
   if (!omics || !omics.mrna) return null;
 
-  const labelMap = {
-    proliferation: "Proliferation",
-    immune_cytotoxic: "Immune cytotoxic",
-    hrd: "HRD / DNA repair",
-    pi3k_akt_mtor: "PI3K axis",
-    emt: "EMT",
-    pdl1: "PD-L1"
-  };
-
-  const order = [
+  const ORDER = [
     "proliferation",
     "immune_cytotoxic",
     "hrd",
     "pi3k_akt_mtor",
     "emt",
-    "pdl1"
+    "pdl1",
+    "angiogenesis"
   ];
 
-  const theta = order.map(k => labelMap[k]);
-  const r = order.map(k => omics.mrna[k] ?? 0);
+  const LABELS = {
+    proliferation: "Proliferation",
+    immune_cytotoxic: "Immune cytotoxic",
+    hrd: "HRD / DNA repair",
+    pi3k_akt_mtor: "PI3K axis",
+    emt: "EMT",
+    pdl1: "PD-L1",
+    angiogenesis: "Angiogenesis"
+  };
+
+  const theta = ORDER.map(k => LABELS[k]);
+  const r = ORDER.map(k => {
+    const v = omics.mrna[k];
+    if (v === undefined || v === null) return 0;
+    return Math.min(Math.max(v, 0), 1);
+  });
 
   return (
     <Plot
       data={[
         {
           type: "scatterpolar",
-          r: [...r, r[0]],
-          theta: [...theta, theta[0]],
+          r,
+          theta,
           fill: "toself",
-          fillcolor: "rgba(59,130,246,0.28)",
-          line: {
-            color: "#3b82f6",
-            width: 3
-          },
-          marker: {
-            size: 4,
-            color: "#3b82f6"
-          }
+          fillcolor: "rgba(59,130,246,0.35)",
+          line: { color: "#3b82f6", width: 2 },
+          hoverinfo: "theta+r"
         }
       ]}
       layout={{
-        margin: { t: 20, b: 20, l: 20, r: 20 },
-        showlegend: false,
-        paper_bgcolor: "transparent",
-        plot_bgcolor: "transparent",
+        autosize: true,
+        margin: { l: 20, r: 20, t: 20, b: 20 },
         polar: {
-          bgcolor: "transparent",
           radialaxis: {
             range: [0, 1],
-            tick0: 0,
-            dtick: 0.2,
-            gridcolor: "rgba(255,255,255,0.18)",
-            gridwidth: 1.5,
-            tickfont: {
-              color: "rgba(255,255,255,0.75)",
-              size: 11
-            }
+            tickfont: { color: "#475569" },
+            gridcolor: "#e5e7eb"
           },
           angularaxis: {
-            gridcolor: "rgba(255,255,255,0.15)",
-            gridwidth: 1.5,
-            tickfont: {
-              color: "#e5e7eb",
-              size: 13
-            }
-          }
-        }
+  direction: "clockwise",
+  rotation: 90,
+  tickfont: { color: "#475569", size: 11 },
+  gridcolor: "#e5e7eb",
+  tickpadding: 8
+}
+        },
+        paper_bgcolor: "rgba(0,0,0,0)",
+        plot_bgcolor: "rgba(0,0,0,0)",
+        showlegend: false,
+        font: { color: "#0f172a" }
       }}
       config={{ displayModeBar: false }}
       style={{ width: "100%", height: "100%" }}

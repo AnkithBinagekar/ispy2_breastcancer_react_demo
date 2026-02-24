@@ -1,13 +1,52 @@
 /*frontend/src/index.css */
+/* RESET */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-html, body, #root {
+/* IMPORTANT: allow vertical scrolling */
+html,
+body,
+#root {
   width: 100%;
   height: 100%;
   margin: 0;
-  overflow: hidden;
+  padding: 0;
+  background: #f6f7fb;
+  color: #0f172a;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Inputs */
+input,
+select,
+button {
+  font-family: inherit;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: #2563eb;
+}
+
+select,
+button {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
 }

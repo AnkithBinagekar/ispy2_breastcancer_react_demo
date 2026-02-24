@@ -1,10 +1,15 @@
 // src/App.jsx
 import { useEffect, useState } from "react";
-import ResponseCard from "./components/ResponseCard";
+
 import OmicsRadar from "./components/OmicsRadar";
 import DriversPanel from "./components/DriversPanel";
 import MechanisticAlignment from "./components/MechanisticAlignment";
+import MechanisticEvidence from "./components/MechanisticEvidence";
+import ResponseCard from "./components/ResponseCard";
 import RegimenBars from "./components/RegimenBars";
+import RegimenBuilder from "./components/RegimenBuilder";
+import AuditProvenance from "./components/AuditProvenance";
+
 import "./App.css";
 
 function App() {
@@ -13,7 +18,6 @@ function App() {
   const [regimens, setRegimens] = useState(null);
   const [omics, setOmics] = useState(null);
   const [drivers, setDrivers] = useState({});
-  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // -----------------------
   // Fetch patients
@@ -46,90 +50,97 @@ function App() {
   return (
     <div className="app-root">
       {/* ========== SIDEBAR ========== */}
-      <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
-        <div className="sidebar-header">
-          <span>Data</span>
-          <button
-            className="collapse-btn"
-            onClick={() => setSidebarOpen((s) => !s)}
-          >
-            {sidebarOpen ? "❮❮" : "❯❯"}
-          </button>
-        </div>
+      <aside className="sidebar">
+        <h3>Data</h3>
 
-        <div className="sidebar-section">
-          <label>
-            <input type="radio" name="mode" defaultChecked />
-            Load cohort JSON
-          </label>
-          <label>
-            <input type="radio" name="mode" />
-            Load single patient JSON
-          </label>
-        </div>
+        <label>
+          <input type="radio" defaultChecked /> Load cohort JSON
+        </label>
 
-        <div className="sidebar-section">
-          <p>Select patient</p>
-          <select
-            value={selectedPatient}
-            onChange={(e) => setSelectedPatient(e.target.value)}
-          >
-            {patients.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-        </div>
+        <label>
+          <input type="radio" /> Load single patient JSON
+        </label>
 
-        <div className="sidebar-section">
-          <label>
-            <input type="checkbox" />
-            Enable Model-A scoring
-          </label>
-          <label>
-            <input type="checkbox" />
-            Show regimen leaderboard
-          </label>
-          <label>
-            <input type="checkbox" />
-            Show debug JSON
-          </label>
-        </div>
+        <p style={{ marginTop: 12 }}>Select patient</p>
+
+        <select
+          value={selectedPatient}
+          onChange={(e) => setSelectedPatient(e.target.value)}
+        >
+          {patients.map((p) => (
+            <option key={p}>{p}</option>
+          ))}
+        </select>
+
+        <label>
+          <input type="checkbox" /> Enable Model-A scoring
+        </label>
+
+        <label>
+          <input type="checkbox" /> Show regimen leaderboard
+        </label>
+
+        <label>
+          <input type="checkbox" /> Show debug JSON
+        </label>
       </aside>
 
       {/* ========== MAIN ========== */}
       <main className="main-content">
         <h1>I-SPY2 Breast Cancer Digital Twin</h1>
 
-        {/* TOP GRID */}
-        <section className="dashboard-grid">
+        {/* ================================================= */}
+        {/* ROW 1 : Omics | Patient+Mechanistic | Response  */}
+        {/* ================================================= */}
+
+        <section className="row-3col">
+          {/* LEFT */}
           <div className="card">
             <h3>Signature Fingerprint (mRNA)</h3>
             <div className="chart-box">
               <OmicsRadar omics={omics} />
             </div>
+
+            <DriversPanel drivers={drivers} />
           </div>
 
+          {/* MIDDLE */}
           <div className="card">
+            <h3>Patient Data</h3>
+
+            <p><b>Patient ID:</b> {selectedPatient}</p>
+
             <MechanisticAlignment drivers={drivers} />
+
+            <MechanisticEvidence />
           </div>
 
-          <div className="card">
-            <ResponseCard regimens={regimens} />
-          </div>
+          {/* RIGHT */}
+          <ResponseCard regimens={regimens} />
         </section>
 
-        {/* BOTTOM GRID */}
-        <section className="bottom-grid">
+        {/* ================================================= */}
+        {/* ROW 2 : Regimen Builder | Regimen Leaderboard   */}
+        {/* ================================================= */}
+
+        <section className="row-2col">
           <div className="card">
-            <DriversPanel drivers={drivers} />
+            <RegimenBuilder regimens={regimens} />
           </div>
 
           <div className="card">
             <RegimenBars regimens={regimens} />
           </div>
         </section>
+
+        {/* ================================================= */}
+        {/* ROW 3 : AUDIT                                   */}
+        {/* ================================================= */}
+
+        <div className="card">
+          <AuditProvenance />
+        </div>
+
       </main>
     </div>
   );
