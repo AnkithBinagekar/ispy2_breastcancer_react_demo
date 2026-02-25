@@ -5,14 +5,13 @@ import Plot from "react-plotly.js";
 export default function OmicsRadar({ omics }) {
   if (!omics || !omics.mrna) return null;
 
+  // Reduced to the 5 exact axes shown in the Streamlit UI PDF
   const ORDER = [
     "proliferation",
     "immune_cytotoxic",
     "hrd",
     "pi3k_akt_mtor",
-    "emt",
-    "pdl1",
-    "angiogenesis"
+    "emt"
   ];
 
   const LABELS = {
@@ -20,16 +19,17 @@ export default function OmicsRadar({ omics }) {
     immune_cytotoxic: "Immune cytotoxic",
     hrd: "HRD / DNA repair",
     pi3k_akt_mtor: "PI3K axis",
-    emt: "EMT",
-    pdl1: "PD-L1",
-    angiogenesis: "Angiogenesis"
+    emt: "EMT"
   };
 
   const theta = ORDER.map(k => LABELS[k]);
+  
+  // Streamlit Logic Application: vclip = np.clip(v, -2.5, 2.5); vnorm = (vclip + 2.5) / 5.0
   const r = ORDER.map(k => {
     const v = omics.mrna[k];
-    if (v === undefined || v === null) return 0;
-    return Math.min(Math.max(v, 0), 1);
+    if (v === undefined || v === null) return 0.5; // Default to neutral middle if missing
+    const vclip = Math.min(Math.max(v, -2.5), 2.5);
+    return (vclip + 2.5) / 5.0; 
   });
 
   // close loop
@@ -44,19 +44,21 @@ export default function OmicsRadar({ omics }) {
           r: rClosed,
           theta: thetaClosed,
           fill: "toself",
-          fillcolor: "rgba(59,130,246,0.28)",
+          fillcolor: "rgba(59,130,246,0.28)", // React Light Theme Blue
           line: { color: "#3b82f6", width: 2.5 },
           hoverinfo: "theta+r"
         }
       ]}
       layout={{
         autosize: true,
-        margin: { l: 20, r: 20, t: 20, b: 20 },
+        margin: { l: 40, r: 40, t: 40, b: 40 }, // Breathing room
         polar: {
           radialaxis: {
             range: [0, 1],
             tickfont: { color: "#475569" },
-            gridcolor: "#e5e7eb"
+            gridcolor: "#e5e7eb",
+            tickvals: [0.25, 0.5, 0.75], // Exact tick marks from Streamlit code
+            ticktext: ["", "", ""] // Hides numbers inside the rings
           },
           angularaxis: {
             direction: "clockwise",
@@ -71,7 +73,7 @@ export default function OmicsRadar({ omics }) {
         showlegend: false,
         font: { color: "#0f172a" }
       }}
-      config={{ displayModeBar: false }}
+      config={{ displayModeBar: false, responsive: true }}
       style={{ width: "100%", height: "100%" }}
     />
   );

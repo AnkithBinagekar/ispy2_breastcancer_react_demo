@@ -8,36 +8,30 @@ export default function RegimenBars({ regimens }) {
 
   return (
     <div>
-
       <h3>Regimen Leaderboard</h3>
-
       <div className="regimen-list">
-
         {entries.map(([name, value], idx) => (
-          <div key={name} style={{ marginBottom: 12 }}>
-
-            <div style={{ fontSize: 13, marginBottom: 4 }}>
+          <div key={name} style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 13, marginBottom: 6, fontWeight: 600, color: "#334155" }}>
               {idx === 0 && "★ "} {name}
             </div>
-
-            <div className="scenario-bar-bg">
+            {/* Custom light-theme bars */}
+            <div style={{ background: "#e2e8f0", height: 8, borderRadius: 999, overflow: "hidden" }}>
               <div
-                className="scenario-bar-fill"
                 style={{
-                  width: `${Math.round(value * 100)}%`
+                  background: "#3b82f6",
+                  height: "100%",
+                  width: `${Math.round(value * 100)}%`,
+                  borderRadius: 999
                 }}
               />
             </div>
-
-            <div style={{ fontSize: 12, opacity: 0.7, marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4, textAlign: "right", fontWeight: 600 }}>
               {(value * 100).toFixed(1)}%
             </div>
-
           </div>
         ))}
-
       </div>
-
     </div>
   );
 }

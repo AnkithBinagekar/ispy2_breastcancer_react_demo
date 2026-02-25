@@ -13,42 +13,19 @@ export default function DriversPanel({ drivers }) {
 
   return (
     <div style={{ marginTop: 14 }}>
-
       <h3>Top Molecular Drivers (signature-level)</h3>
-
       <div style={{ marginTop: 10 }}>
         {Object.entries(drivers).map(([key, value]) => (
-          <div
-            key={key}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "8px 10px",
-              borderRadius: 10,
-              border: "1px solid #e2e8f0",
-              marginBottom: 8,
-              background: "#f8fafc"
-            }}
-          >
-            <span style={{ fontWeight: 500 }}>
+          <div key={key} className="driver-row">
+            <span style={{ fontWeight: 600, color: "#334155" }}>
               {key.replace(/_/g, " ")}
             </span>
-
-            <span className={getChipClass(value)}
-              style={{
-                fontSize: 12,
-                padding: "2px 8px",
-                borderRadius: 999,
-                fontWeight: 600
-              }}
-            >
+            <span className={`chip ${getChipClass(value)}`}>
               {value}
             </span>
           </div>
         ))}
       </div>
-
     </div>
   );
 }
