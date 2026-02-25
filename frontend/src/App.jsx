@@ -6,12 +6,19 @@ import DriversPanel from "./components/DriversPanel";
 import MechanisticAlignment from "./components/MechanisticAlignment";
 import MechanisticEvidence from "./components/MechanisticEvidence";
 import ResponseCard from "./components/ResponseCard";
-import RegimenBars from "./components/RegimenBars";
 import RegimenBuilder from "./components/RegimenBuilder";
 import AuditProvenance from "./components/AuditProvenance";
 import PatientData from "./components/PatientData";
 import LongitudinalMRI from "./components/LongitudinalMRI";
+import RegimenLeaderboard from "./components/RegimenLeaderboard";
 import "./App.css";
+
+// EXACT Streamlit Pill Header Component
+const PanelHeader = ({ title, type = "normal" }) => (
+  <div className={`panel-header panel-${type}`}>
+    <h3 className="panel-title">{title}</h3>
+  </div>
+);
 
 function App() {
   const [patients, setPatients] = useState([]);
@@ -21,9 +28,13 @@ function App() {
   const [drivers, setDrivers] = useState({});
   
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  
-  // SHARED STATE: Keeps ResponseCard and RegimenBuilder synced
   const [activeScenario, setActiveScenario] = useState("standard");
+  
+  const [theme, setTheme] = useState("light");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/patients")
@@ -49,25 +60,47 @@ function App() {
       .then((r) => r.json())
       .then(setDrivers);
       
-    // Reset scenario on patient change
     setActiveScenario("standard");
   }, [selectedPatient]);
 
   return (
     <div className="app-root">
       
+      {/* SIDEBAR TOGGLE BUTTON */}
       <button 
-        className="sidebar-toggle-floating" 
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        style={{ 
+          position: "fixed", top: "16px", left: "16px", zIndex: 9999,
+          background: "var(--bg-card)", color: "var(--text-main)",
+          border: "1px solid var(--border-main)", borderRadius: "8px",
+          padding: "8px 12px", cursor: "pointer", fontWeight: 600,
+          boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
+        }}
       >
-        {isSidebarOpen ? "☰ Close" : "☰ Menu"}
+        {isSidebarOpen ? "✕ Close Data" : "☰ Data Settings"}
       </button>
 
-      {/* ========== SIDEBAR ========== */}
+      {/* THEME TOGGLE BUTTON */}
+      <button 
+        onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+        style={{ 
+          position: "fixed", top: "16px", right: "24px", zIndex: 9999,
+          width: "46px", height: "46px", borderRadius: "50%",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: "var(--bg-card)", color: "var(--text-main)",
+          border: "1px solid var(--border-main)", cursor: "pointer",
+          fontSize: "22px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          transition: "all 0.3s ease"
+        }}
+        title="Toggle Theme"
+      >
+        {theme === "light" ? "🌙" : "☀️"}
+      </button>
+
       {isSidebarOpen && (
         <aside className="sidebar">
-          <h3 style={{ marginTop: "24px" }}>Data</h3>
-          <label><input type="radio" name="mode" defaultChecked /> Load cohort JSON</label>
+          <h3 style={{ marginTop: "40px" }}>Data</h3>
+          <label><input type="radio" name="mode" defaultChecked /> Load cohort JSON</label><br/>
           <label><input type="radio" name="mode" /> Load single patient JSON</label>
 
           <details style={{ marginTop: 12 }}>
@@ -98,7 +131,7 @@ function App() {
           <hr />
 
           <h4>Display</h4>
-          <label><input type="checkbox" /> Show regimen leaderboard (table)</label>
+          <label><input type="checkbox" /> Show regimen leaderboard (table)</label><br/>
           <label><input type="checkbox" /> Show debug JSON</label>
 
           <details style={{ marginTop: 12 }}>
@@ -112,43 +145,61 @@ function App() {
         </aside>
       )}
 
-      {/* ========== MAIN ========== */}
-      <main className="main-content" style={{ paddingLeft: !isSidebarOpen ? "60px" : "32px" }}>
-        <h1>I-SPY2 Breast Cancer Digital Twin</h1>
+      <main className="main-content" style={{ paddingLeft: !isSidebarOpen ? "50px" : "32px", paddingTop: "32px" }}>
+        <h1 style={{ marginTop: "8px" }}>I-SPY2 Breast Cancer Digital Twin Demo</h1>
 
-        {/* ROW 1: Omics | Patient | Response */}
         <section className="row-3col">
-          <div className="card">
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>Select patient</div>
+          {/* LEFT: Omics */}
+          <div>
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 14, marginBottom: 6, fontWeight: 600, color: "var(--text-main)" }}>Select patient</div>
               <select value={selectedPatient} onChange={(e) => setSelectedPatient(e.target.value)} style={{ width: "100%" }}>
                 {patients.map((p) => (<option key={p}>{p}</option>))}
               </select>
             </div>
-            <h3>Signature Fingerprint (mRNA)</h3>
-            <div className="chart-box">
-              <OmicsRadar omics={omics} />
+            
+            <PanelHeader title="OMICS PROFILE (BASELINE)" type="bright" />
+            <div style={{ textAlign: "center", marginBottom: -10 }}>
+              <span style={{ fontSize: 13, color: "var(--text-muted)" }}>Signature fingerprint (scaled from pathway z-scores)</span>
             </div>
-            <DriversPanel drivers={drivers} />
+            <div className="chart-box">
+              <OmicsRadar omics={omics} theme={theme} />
+            </div>
+            <DriversPanel drivers={drivers} omics={omics} />
           </div>
 
-          <div className="card">
+          {/* MIDDLE: Data & Alignment (DUPLICATION REMOVED) */}
+          <div>
+            <PanelHeader title="PATIENT DATA" type="top" />
             <PatientData patientId={selectedPatient} subtype={omics?.subtype} arm={omics?.arm} />
-            <MechanisticAlignment drivers={drivers} />
-            <MechanisticEvidence />
+            
+            <div style={{ marginTop: 32 }}></div>
+            <PanelHeader title="MECHANISTIC ALIGNMENT (HEURISTIC)" />
+            <MechanisticAlignment drivers={drivers} omics={omics} regimens={regimens} />
+            
+            <div style={{ marginTop: 16 }}></div>
+            <PanelHeader title="MECHANISTIC EVIDENCE LAYER" />
+            <MechanisticEvidence drivers={drivers} omics={omics} regimens={regimens} />
           </div>
 
-          <ResponseCard 
-            regimens={regimens} 
-            activeScenario={activeScenario} 
-            setActiveScenario={setActiveScenario} 
-          />
+          {/* RIGHT: Response Prediction */}
+          <div>
+            <PanelHeader title="RESPONSE PREDICTION" type="top" />
+            <ResponseCard 
+              regimens={regimens} 
+              activeScenario={activeScenario} 
+              setActiveScenario={setActiveScenario} 
+            />
+          </div>
         </section>
 
-        {/* ROW 2: MRI | Regimen Builder */}
         <section className="row-2col">
-          <LongitudinalMRI />
-          <div className="card">
+          <div>
+            <PanelHeader title="LONGITUDINAL MRI (TIMEPOINTS)" />
+            <LongitudinalMRI />
+          </div>
+          <div>
+            <PanelHeader title="REGIMEN BUILDER (WHAT-IF)" />
             <RegimenBuilder 
               regimens={regimens} 
               activeScenario={activeScenario} 
@@ -157,15 +208,11 @@ function App() {
           </div>
         </section>
 
-        {/* ROW 3: Leaderboard */}
-        <div className="card" style={{ marginBottom: 24 }}>
-          <RegimenBars regimens={regimens} />
-        </div>
+        {/* Data Table Leaderboard (Interactive) */}
+        <RegimenLeaderboard regimens={regimens} />
 
-        {/* ROW 4: Audit */}
-        <div className="card">
-          <AuditProvenance />
-        </div>
+        {/* Audit Provenance Expander */}
+        <AuditProvenance />
 
       </main>
     </div>

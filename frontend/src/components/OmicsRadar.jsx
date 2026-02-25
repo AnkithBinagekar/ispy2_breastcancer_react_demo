@@ -2,10 +2,10 @@
 
 import Plot from "react-plotly.js";
 
-export default function OmicsRadar({ omics }) {
+export default function OmicsRadar({ omics, theme }) {
   if (!omics || !omics.mrna) return null;
 
-  // Reduced to the 5 exact axes shown in the Streamlit UI PDF
+  // Exact 5 axes required to match Streamlit shape
   const ORDER = [
     "proliferation",
     "immune_cytotoxic",
@@ -24,17 +24,21 @@ export default function OmicsRadar({ omics }) {
 
   const theta = ORDER.map(k => LABELS[k]);
   
-  // Streamlit Logic Application: vclip = np.clip(v, -2.5, 2.5); vnorm = (vclip + 2.5) / 5.0
   const r = ORDER.map(k => {
     const v = omics.mrna[k];
-    if (v === undefined || v === null) return 0.5; // Default to neutral middle if missing
+    if (v === undefined || v === null) return 0.5;
     const vclip = Math.min(Math.max(v, -2.5), 2.5);
     return (vclip + 2.5) / 5.0; 
   });
 
-  // close loop
   const thetaClosed = [...theta, theta[0]];
   const rClosed = [...r, r[0]];
+
+  // Exact Streamlit Theme Colors
+  const fontColor = theme === "dark" ? "rgba(255, 255, 255, 0.85)" : "#31333F";
+  const gridColor = theme === "dark" ? "rgba(255, 255, 255, 0.15)" : "rgba(49, 51, 63, 0.15)";
+  const fillColor = theme === "dark" ? "rgba(77,182,255,0.22)" : "rgba(37,99,235,0.22)";
+  const lineColor = theme === "dark" ? "#4db6ff" : "#2563eb";
 
   return (
     <Plot
@@ -44,34 +48,39 @@ export default function OmicsRadar({ omics }) {
           r: rClosed,
           theta: thetaClosed,
           fill: "toself",
-          fillcolor: "rgba(59,130,246,0.28)", // React Light Theme Blue
-          line: { color: "#3b82f6", width: 2.5 },
+          fillcolor: fillColor,
+          line: { color: lineColor, width: 2.2 },
           hoverinfo: "theta+r"
         }
       ]}
       layout={{
         autosize: true,
-        margin: { l: 40, r: 40, t: 40, b: 40 }, // Breathing room
+        margin: { l: 45, r: 45, t: 40, b: 40 },
         polar: {
+          // FIX 1: Removes the giant white circle background
+          bgcolor: "rgba(0,0,0,0)", 
           radialaxis: {
+            visible: true,
             range: [0, 1],
-            tickfont: { color: "#475569" },
-            gridcolor: "#e5e7eb",
-            tickvals: [0.25, 0.5, 0.75], // Exact tick marks from Streamlit code
-            ticktext: ["", "", ""] // Hides numbers inside the rings
+            // Defines the concentric circular grid lines
+            tickvals: [0.25, 0.5, 0.75, 1], 
+            showticklabels: false, // Hides the numbers to match Streamlit
+            gridcolor: gridColor,
+            linecolor: gridColor,
+            gridwidth: 1
           },
           angularaxis: {
-            direction: "clockwise",
-            rotation: 90,
-            tickfont: { color: "#475569", size: 11 },
-            gridcolor: "#e5e7eb",
-            tickpadding: 8
+            // FIX 2: Removed rotation & direction overrides so Proliferation starts at 3 o'clock
+            tickfont: { color: fontColor, size: 12, weight: 600 },
+            gridcolor: gridColor,
+            linecolor: gridColor,
+            gridwidth: 1,
+            tickpadding: 12
           }
         },
         paper_bgcolor: "rgba(0,0,0,0)",
         plot_bgcolor: "rgba(0,0,0,0)",
-        showlegend: false,
-        font: { color: "#0f172a" }
+        showlegend: false
       }}
       config={{ displayModeBar: false, responsive: true }}
       style={{ width: "100%", height: "100%" }}
