@@ -387,11 +387,10 @@ p {
 /* ================= PLOTLY CHART CONTAINER FIX ================= */
 .chart-box {
   width: 100%;
-  min-height: 320px; /* Gives the chart enough vertical room to grow */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 340px; /* FIX: Locked strict height stops the redraw jumping */
   position: relative;
+  
+  /* FIX: Removed 'display: flex' as it conflicts with Plotly's absolute positioning */
   
   /* THIS IS THE MAGIC BULLET: Stops the CSS container from chopping the text */
   overflow: visible !important; 
