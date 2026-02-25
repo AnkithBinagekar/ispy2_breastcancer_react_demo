@@ -50,27 +50,26 @@ export default function OmicsRadar({ omics, theme }) {
           fill: "toself",
           fillcolor: fillColor,
           line: { color: lineColor, width: 2.2 },
-          hoverinfo: "theta+r"
+          hoverinfo: "theta+r",
+          cliponaxis: false // Lets text overflow the SVG bounds without getting cut
         }
       ]}
       layout={{
         autosize: true,
-        margin: { l: 45, r: 45, t: 40, b: 40 },
+        // Balanced margins give text room to breathe without shrinking the web
+        margin: { l: 80, r: 80, t: 40, b: 40 }, 
         polar: {
-          // FIX 1: Removes the giant white circle background
           bgcolor: "rgba(0,0,0,0)", 
           radialaxis: {
             visible: true,
             range: [0, 1],
-            // Defines the concentric circular grid lines
             tickvals: [0.25, 0.5, 0.75, 1], 
-            showticklabels: false, // Hides the numbers to match Streamlit
+            showticklabels: false,
             gridcolor: gridColor,
             linecolor: gridColor,
             gridwidth: 1
           },
           angularaxis: {
-            // FIX 2: Removed rotation & direction overrides so Proliferation starts at 3 o'clock
             tickfont: { color: fontColor, size: 12, weight: 600 },
             gridcolor: gridColor,
             linecolor: gridColor,
@@ -83,7 +82,8 @@ export default function OmicsRadar({ omics, theme }) {
         showlegend: false
       }}
       config={{ displayModeBar: false, responsive: true }}
-      style={{ width: "100%", height: "100%" }}
+      // FIX: Rely on CSS min-height to allow scaling without cutting off edges
+      style={{ width: "100%", height: "100%", overflow: "visible" }} 
     />
   );
 }

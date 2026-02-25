@@ -29,8 +29,11 @@ function App() {
   
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeScenario, setActiveScenario] = useState("standard");
-  
   const [theme, setTheme] = useState("light");
+
+  // NEW STATES: For handling Single Patient Mode vs Cohort Mode
+  const [appMode, setAppMode] = useState("cohort"); // "cohort" | "single"
+  const [hasRunInference, setHasRunInference] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -62,6 +65,9 @@ function App() {
       
     setActiveScenario("standard");
   }, [selectedPatient]);
+
+  // Determine if the main dashboard should be visible
+  const showDashboard = appMode === "cohort" || (appMode === "single" && hasRunInference);
 
   return (
     <div className="app-root">
@@ -100,8 +106,14 @@ function App() {
       {isSidebarOpen && (
         <aside className="sidebar">
           <h3 style={{ marginTop: "40px" }}>Data</h3>
-          <label><input type="radio" name="mode" defaultChecked /> Load cohort JSON</label><br/>
-          <label><input type="radio" name="mode" /> Load single patient JSON</label>
+          
+          {/* UPDATED: Radio buttons now control the appMode state */}
+          <label>
+            <input type="radio" name="mode" checked={appMode === "cohort"} onChange={() => { setAppMode("cohort"); setHasRunInference(false); }} /> Load cohort JSON
+          </label><br/>
+          <label>
+            <input type="radio" name="mode" checked={appMode === "single"} onChange={() => { setAppMode("single"); setHasRunInference(false); }} /> Load single patient JSON
+          </label>
 
           <details style={{ marginTop: 12 }}>
             <summary>Path presets (from run steps)</summary>
@@ -119,7 +131,57 @@ function App() {
           <input type="text" defaultValue="./live_patients/patient_records/382853.json" />
 
           <p style={{ fontSize: 12, marginTop: 12 }}>Single-patient mode: click Run inference to generate predictions.</p>
-          <button>Run inference</button>
+          
+          {/* UPDATED: Sidebar Run Inference button */}
+          {appMode === "single" && !hasRunInference && (
+          <div style={{ marginBottom: "24px" }}>
+            <p style={{ fontSize: "14.5px", color: "var(--text-main)", marginBottom: "16px" }}>
+              <b>Single-patient mode:</b> load the patient JSON, then click <b>Run inference</b> to generate predictions.
+            </p>
+            <button 
+              onClick={async () => {
+                // 1. Mark as loading
+                setHasRunInference(true); 
+                try {
+                  // 2. Send the sidebar paths to the FastAPI backend
+                  const res = await fetch("http://127.0.0.1:8000/run-inference", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      patient_json: "./live_patients/patient_records/382853.json",
+                      models_dir: "./out/models",
+                      infer_script: "./03_infer_modelA.py",
+                      vocab_path: "./regimen_vocab.json",
+                      modalities: "mrna,rppa"
+                    })
+                  });
+                  const json = await res.json();
+                  
+                  if (json.status === "success") {
+                    // 3. Override dashboard data with the live ML results
+                    setRegimens(json.data.trial_regimen_prediction || {});
+                    setOmics({
+                      mrna: json.data.omics?.mRNA?.z_scores || {},
+                      rppa: json.data.omics?.RPPA?.z_scores || {},
+                      subtype: json.data.labels?.subtype || "—",
+                      arm: json.data.labels?.trial_arm || "—"
+                    });
+                    setDrivers(json.data.evidence_triage?.omics_driver_support || {});
+                  }
+                } catch (err) {
+                  console.error("Inference Error:", err);
+                }
+              }}
+              style={{
+                background: "var(--bg-card)", color: "var(--text-main)", border: "1px solid var(--border-main)",
+                borderRadius: "8px", padding: "6px 14px", cursor: "pointer", fontWeight: 400, fontSize: "14.5px",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+              }}
+            >
+              Run inference
+            </button>
+          </div>
+        )}
           <hr />
 
           <h4>Optional: Live Model-A scoring</h4>
@@ -146,73 +208,106 @@ function App() {
       )}
 
       <main className="main-content" style={{ paddingLeft: !isSidebarOpen ? "50px" : "32px", paddingTop: "32px" }}>
-        <h1 style={{ marginTop: "8px" }}>I-SPY2 Breast Cancer Digital Twin Demo</h1>
+        
+        <h1 style={{ marginTop: "8px", marginBottom: "16px" }}>I-SPY2 Breast Cancer Digital Twin Demo</h1>
+        
+        {/* NEW: Dynamic introductory text based on mode */}
+        <p style={{ fontSize: "14.5px", color: "var(--text-main)", marginBottom: appMode === "single" ? "8px" : "24px", lineHeight: 1.5 }}>
+          <b>Core value proposition:</b> rank likely responders and quantify regimen what-ifs in seconds using multimodal baseline data (demo).
+        </p>
 
-        <section className="row-3col">
-          {/* LEFT: Omics */}
-          <div>
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 14, marginBottom: 6, fontWeight: 600, color: "var(--text-main)" }}>Select patient</div>
-              <select value={selectedPatient} onChange={(e) => setSelectedPatient(e.target.value)} style={{ width: "100%" }}>
+        {/* NEW: Conditional 'Run Inference' section for Single Patient mode */}
+        {appMode === "single" && !hasRunInference && (
+          <div style={{ marginBottom: "24px" }}>
+            <p style={{ fontSize: "14.5px", color: "var(--text-main)", marginBottom: "16px" }}>
+              <b>Single-patient mode:</b> load the patient JSON, then click <b>Run inference</b> to generate predictions.
+            </p>
+            <button 
+              onClick={() => setHasRunInference(true)}
+              style={{
+                background: "var(--bg-card)", color: "var(--text-main)", border: "1px solid var(--border-main)",
+                borderRadius: "8px", padding: "6px 14px", cursor: "pointer", fontWeight: 400, fontSize: "14.5px",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+              }}
+            >
+              Run inference
+            </button>
+          </div>
+        )}
+
+        {/* CONDITIONALLY RENDERED DASHBOARD */}
+        {showDashboard && (
+          <>
+            {/* FIXED: Select patient moved to full width above the columns */}
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ fontSize: 14, marginBottom: 6, color: "var(--text-main)" }}>Select patient</div>
+              <select 
+                value={selectedPatient} 
+                onChange={(e) => setSelectedPatient(e.target.value)} 
+                style={{ width: "100%", background: "var(--input-bg)", color: "var(--text-main)", border: "1px solid var(--border-main)", borderRadius: "8px", padding: "8px 12px", fontSize: "14.5px" }}
+              >
                 {patients.map((p) => (<option key={p}>{p}</option>))}
               </select>
             </div>
-            
-            <PanelHeader title="OMICS PROFILE (BASELINE)" type="bright" />
-            <div style={{ textAlign: "center", marginBottom: -10 }}>
-              <span style={{ fontSize: 13, color: "var(--text-muted)" }}>Signature fingerprint (scaled from pathway z-scores)</span>
-            </div>
-            <div className="chart-box">
-              <OmicsRadar omics={omics} theme={theme} />
-            </div>
-            <DriversPanel drivers={drivers} omics={omics} />
-          </div>
 
-          {/* MIDDLE: Data & Alignment (DUPLICATION REMOVED) */}
-          <div>
-            <PanelHeader title="PATIENT DATA" type="top" />
-            <PatientData patientId={selectedPatient} subtype={omics?.subtype} arm={omics?.arm} />
-            
-            <div style={{ marginTop: 32 }}></div>
-            <PanelHeader title="MECHANISTIC ALIGNMENT (HEURISTIC)" />
-            <MechanisticAlignment drivers={drivers} omics={omics} regimens={regimens} />
-            
-            <div style={{ marginTop: 16 }}></div>
-            <PanelHeader title="MECHANISTIC EVIDENCE LAYER" />
-            <MechanisticEvidence drivers={drivers} omics={omics} regimens={regimens} />
-          </div>
+            <section className="row-3col">
+              {/* LEFT: Omics */}
+              <div>
+                <PanelHeader title="OMICS PROFILE (BASELINE)" type="bright" />
+                <div style={{ textAlign: "center", marginBottom: -10 }}>
+                  <span style={{ fontSize: 13, color: "var(--text-muted)" }}>Signature fingerprint (scaled from pathway z-scores)</span>
+                </div>
+                <div className="chart-box">
+                  <OmicsRadar omics={omics} theme={theme} />
+                </div>
+                <DriversPanel drivers={drivers} omics={omics} />
+              </div>
 
-          {/* RIGHT: Response Prediction */}
-          <div>
-            <PanelHeader title="RESPONSE PREDICTION" type="top" />
-            <ResponseCard 
-              regimens={regimens} 
-              activeScenario={activeScenario} 
-              setActiveScenario={setActiveScenario} 
-            />
-          </div>
-        </section>
+              {/* MIDDLE: Data & Alignment */}
+              <div>
+                <PanelHeader title="PATIENT DATA" type="top" />
+                <PatientData patientId={selectedPatient} subtype={omics?.subtype} arm={omics?.arm} />
+                
+                <div style={{ marginTop: 32 }}></div>
+                <PanelHeader title="MECHANISTIC ALIGNMENT (HEURISTIC)" />
+                <MechanisticAlignment drivers={drivers} omics={omics} regimens={regimens} />
+                
+                <div style={{ marginTop: 16 }}></div>
+                <PanelHeader title="MECHANISTIC EVIDENCE LAYER" />
+                <MechanisticEvidence drivers={drivers} omics={omics} regimens={regimens} />
+              </div>
 
-        <section className="row-2col">
-          <div>
-            <PanelHeader title="LONGITUDINAL MRI (TIMEPOINTS)" />
-            <LongitudinalMRI />
-          </div>
-          <div>
-            <PanelHeader title="REGIMEN BUILDER (WHAT-IF)" />
-            <RegimenBuilder 
-              regimens={regimens} 
-              activeScenario={activeScenario} 
-              setActiveScenario={setActiveScenario} 
-            />
-          </div>
-        </section>
+              {/* RIGHT: Response Prediction */}
+              <div>
+                <PanelHeader title="RESPONSE PREDICTION" type="top" />
+                <ResponseCard 
+                  regimens={regimens} 
+                  activeScenario={activeScenario} 
+                  setActiveScenario={setActiveScenario} 
+                />
+              </div>
+            </section>
 
-        {/* Data Table Leaderboard (Interactive) */}
-        <RegimenLeaderboard regimens={regimens} />
+            <section className="row-2col">
+              <div>
+                <PanelHeader title="LONGITUDINAL MRI (TIMEPOINTS)" />
+                <LongitudinalMRI />
+              </div>
+              <div>
+                <PanelHeader title="REGIMEN BUILDER (WHAT-IF)" />
+                <RegimenBuilder 
+                  regimens={regimens} 
+                  activeScenario={activeScenario} 
+                  setActiveScenario={setActiveScenario} 
+                />
+              </div>
+            </section>
 
-        {/* Audit Provenance Expander */}
-        <AuditProvenance />
+            <RegimenLeaderboard regimens={regimens} />
+
+            <AuditProvenance />
+          </>
+        )}
 
       </main>
     </div>

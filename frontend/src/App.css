@@ -384,13 +384,27 @@ p {
   color: var(--text-main);
 }
 
+/* ================= PLOTLY CHART CONTAINER FIX ================= */
 .chart-box {
-  min-height: 360px;
+  width: 100%;
+  min-height: 320px; /* Gives the chart enough vertical room to grow */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  
+  /* THIS IS THE MAGIC BULLET: Stops the CSS container from chopping the text */
+  overflow: visible !important; 
 }
 
 .chart-box > div {
   width: 100% !important;
   height: 100% !important;
+}
+
+/* Forces Plotly's internal wrappers to also allow text overflow */
+.js-plotly-plot, .plotly, .js-plotly-plot .plot-container {
+  overflow: visible !important;
 }
 
 .sidebar h3 {
