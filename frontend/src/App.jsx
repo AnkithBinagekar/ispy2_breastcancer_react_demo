@@ -21,6 +21,7 @@ const PanelHeader = ({ title, type = "normal" }) => (
 );
 
 function App() {
+  const [cohortData, setCohortData] = useState([]); // Holds the raw JSON data
   const [patients, setPatients] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState("");
   const [regimens, setRegimens] = useState(null);
@@ -31,43 +32,62 @@ function App() {
   const [activeScenario, setActiveScenario] = useState("standard");
   const [theme, setTheme] = useState("light");
 
-  // NEW STATES: For handling Single Patient Mode vs Cohort Mode
-  const [appMode, setAppMode] = useState("cohort"); // "cohort" | "single"
+  const [appMode, setAppMode] = useState("cohort"); 
   const [hasRunInference, setHasRunInference] = useState(false);
-
-  // Vercel deployment variable fallback
-  const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
+  // ==========================================
+  // STANDALONE MODE: Fetch static JSON from public folder
+  // ==========================================
   useEffect(() => {
-    fetch(`${API_BASE}/patients`)
+    // Fetches the JSON file directly from your Vercel public directory
+    fetch("/ispy2_top20_v7_optionB_fullcohort_with_modelA.json")
       .then((r) => r.json())
       .then((data) => {
-        setPatients(data);
-        setSelectedPatient(data[0]);
-      });
+        // Handle both Array and Object wrap formats
+        const patientsArray = data.patients || data; 
+        setCohortData(patientsArray);
+        
+        // Extract Patient IDs
+        const pids = patientsArray.map(p => p.patient_key || p.patient_id || p.id).filter(Boolean);
+        const stringPids = pids.map(String);
+        
+        setPatients(stringPids);
+        if (stringPids.length > 0) {
+          setSelectedPatient(stringPids[0]);
+        }
+      })
+      .catch(err => console.error("Could not load static JSON:", err));
   }, []);
 
+  // ==========================================
+  // STANDALONE MODE: Filter data locally in browser
+  // ==========================================
   useEffect(() => {
-    if (!selectedPatient) return;
+    if (!selectedPatient || cohortData.length === 0) return;
 
-    fetch(`${API_BASE}/patient/${selectedPatient}/regimens`)
-      .then((r) => r.json())
-      .then(setRegimens);
+    // Find the currently selected patient in our local JSON array
+    const p = cohortData.find(patient => 
+      String(patient.patient_key || patient.patient_id || patient.id) === selectedPatient
+    );
 
-    fetch(`${API_BASE}/patient/${selectedPatient}/omics`)
-      .then((r) => r.json())
-      .then(setOmics);
-
-    fetch(`${API_BASE}/patient/${selectedPatient}/drivers`)
-      .then((r) => r.json())
-      .then(setDrivers);
+    if (p) {
+      // Replicate the backend mappings
+      setRegimens(p.trial_regimen_prediction || {});
+      setOmics({
+        mrna: p.omics?.mRNA?.z_scores || {},
+        rppa: p.omics?.RPPA?.z_scores || {},
+        subtype: p.labels?.subtype || "—",
+        arm: p.labels?.trial_arm || "—"
+      });
+      setDrivers(p.evidence_triage?.omics_driver_support || {});
+    }
       
     setActiveScenario("standard");
-  }, [selectedPatient]);
+  }, [selectedPatient, cohortData]);
 
   const showDashboard = appMode === "cohort" || (appMode === "single" && hasRunInference);
 
@@ -109,7 +129,6 @@ function App() {
         <aside className="sidebar">
           <h3 style={{ marginTop: "40px" }}>Data</h3>
           
-          {/* 1. FIXED STREAMLIT RED RADIO BUTTONS */}
           <div style={{ marginBottom: "16px" }}>
             <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-main)", marginBottom: "8px" }}>Mode</p>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -136,7 +155,6 @@ function App() {
             </div>
           </div>
 
-          {/* 2. FIXED STREAMLIT-STYLE EXPANDER */}
           <details className="st-expander" style={{ marginTop: 0, marginBottom: "16px" }}>
             <summary>Path presets (from run steps)</summary>
             <div className="st-expander-content" style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "12px 14px", borderTop: "1px solid var(--border-main)" }}>
@@ -165,7 +183,6 @@ function App() {
             <input type="text" defaultValue="./live_patients/patient_records/382853.json" />
           </div>
 
-          {/* ... Run inference controls ... */}
           <p style={{ fontSize: 13, marginTop: 16, marginBottom: 8, color: "var(--text-main)" }}>Single-patient mode: click Run inference to generate predictions.</p>
           <button 
             onClick={() => setHasRunInference(true)}
@@ -235,36 +252,7 @@ function App() {
               <b>Single-patient mode:</b> load the patient JSON, then click <b>Run inference</b> to generate predictions.
             </p>
             <button 
-              onClick={async () => {
-                setHasRunInference(true); 
-                try {
-                  const res = await fetch(`${API_BASE}/run-inference`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      patient_json: "./live_patients/patient_records/382853.json",
-                      models_dir: "./out/models",
-                      infer_script: "./03_infer_modelA.py",
-                      vocab_path: "./regimen_vocab.json",
-                      modalities: "mrna,rppa"
-                    })
-                  });
-                  const json = await res.json();
-                  
-                  if (json.status === "success") {
-                    setRegimens(json.data.trial_regimen_prediction || {});
-                    setOmics({
-                      mrna: json.data.omics?.mRNA?.z_scores || {},
-                      rppa: json.data.omics?.RPPA?.z_scores || {},
-                      subtype: json.data.labels?.subtype || "—",
-                      arm: json.data.labels?.trial_arm || "—"
-                    });
-                    setDrivers(json.data.evidence_triage?.omics_driver_support || {});
-                  }
-                } catch (err) {
-                  console.error("Inference Error:", err);
-                }
-              }}
+              onClick={() => setHasRunInference(true)}
               style={{
                 background: "var(--bg-card)", color: "var(--text-main)", border: "1px solid var(--border-main)",
                 borderRadius: "8px", padding: "6px 14px", cursor: "pointer", fontWeight: 400, fontSize: "14.5px",
