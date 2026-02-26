@@ -73,21 +73,54 @@ export default function RegimenBuilder({ regimens, activeScenario = "standard", 
   return (
     <div className="regimen-builder">
       
-      <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 14, marginTop: 0 }}>
-        <b>How to read:</b> pick a scenario. The regimen list and filters update, and the matching bar in Response Prediction is highlighted.
-      </p>
+      <div style={{ marginBottom: 20 }}>
+        <label style={{ fontSize: 14, color: "var(--text-main)", display: "block", marginBottom: 10 }}>
+          Therapy what-if
+        </label>
+        
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+          
+          <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 14.5, color: "var(--text-main)" }}>
+            <input 
+              type="radio" 
+              name="scenario" 
+              checked={activeScenario === "standard"} 
+              onChange={() => handleScenarioChange("standard")}
+              style={{ accentColor: "#ff4b4b", width: 16, height: 16, cursor: "pointer" }}
+            />
+            Standard (trial arm baseline)
+          </label>
 
-      <div className="rb-scenario-row">
-        <button className={activeScenario === "standard" ? "rb-btn active" : "rb-btn"} onClick={() => handleScenarioChange("standard")}>Standard (trial arm baseline)</button>
-        <button className={activeScenario === "parp" ? "rb-btn active" : "rb-btn"} onClick={() => handleScenarioChange("parp")}>Add PARP inhibitor</button>
-        <button className={activeScenario === "pi3k" ? "rb-btn active" : "rb-btn"} onClick={() => handleScenarioChange("pi3k")}>Add PI3K/AKT inhibitor</button>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 14.5, color: "var(--text-main)" }}>
+            <input 
+              type="radio" 
+              name="scenario" 
+              checked={activeScenario === "parp"} 
+              onChange={() => handleScenarioChange("parp")}
+              style={{ accentColor: "#ff4b4b", width: 16, height: 16, cursor: "pointer" }}
+            />
+            Add PARP inhibitor
+          </label>
+
+          <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 14.5, color: "var(--text-main)" }}>
+            <input 
+              type="radio" 
+              name="scenario" 
+              checked={activeScenario === "pi3k"} 
+              onChange={() => handleScenarioChange("pi3k")}
+              style={{ accentColor: "#ff4b4b", width: 16, height: 16, cursor: "pointer" }}
+            />
+            Add PI3K/AKT inhibitor
+          </label>
+
+        </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-main)" }}>Chemo backbone (filter)</label>
+          <label style={{ fontSize: 13, color: "var(--text-main)", marginBottom: 4, display: "block" }}>Chemo backbone (filter)</label>
           <select
-            style={{ width: "100%", marginTop: 4, padding: "6px 8px", fontSize: 13, border: "1px solid var(--border-main)", borderRadius: 6, background: "var(--input-bg)", color: "var(--text-main)" }}
+            style={{ width: "100%", padding: "8px 10px", fontSize: 14, border: "1px solid var(--border-main)", borderRadius: 6, background: "var(--input-bg)", color: "var(--text-main)" }}
             value={backboneFilter}
             onChange={(e) => setBackboneFilter(e.target.value)}
           >
@@ -95,9 +128,9 @@ export default function RegimenBuilder({ regimens, activeScenario = "standard", 
           </select>
         </div>
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-main)" }}>Targeted add-on (filter)</label>
+          <label style={{ fontSize: 13, color: "var(--text-main)", marginBottom: 4, display: "block" }}>Targeted add-on (filter)</label>
           <select
-            style={{ width: "100%", marginTop: 4, padding: "6px 8px", fontSize: 13, border: "1px solid var(--border-main)", borderRadius: 6, background: "var(--input-bg)", color: "var(--text-main)" }}
+            style={{ width: "100%", padding: "8px 10px", fontSize: 14, border: "1px solid var(--border-main)", borderRadius: 6, background: "var(--input-bg)", color: "var(--text-main)" }}
             value={addonFilter}
             onChange={(e) => setAddonFilter(e.target.value)}
           >
@@ -107,9 +140,9 @@ export default function RegimenBuilder({ regimens, activeScenario = "standard", 
       </div>
 
       <div style={{ marginBottom: 16 }}>
-        <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-main)" }}>Regimen (scored by the model)</label>
+        <label style={{ fontSize: 13, color: "var(--text-main)", marginBottom: 4, display: "block" }}>Regimen (scored by the model)</label>
         <select
-          style={{ width: "100%", marginTop: 4, padding: "6px 8px", fontSize: 13, border: "1px solid var(--border-main)", borderRadius: 6, background: "var(--input-bg)", color: "var(--text-main)" }}
+          style={{ width: "100%", padding: "8px 10px", fontSize: 14, border: "1px solid var(--border-main)", borderRadius: 6, background: "var(--input-bg)", color: "var(--text-main)" }}
           value={displayedRegimen[0]}
           onChange={(e) => setSelectedRegimen(e.target.value)}
         >
@@ -119,42 +152,43 @@ export default function RegimenBuilder({ regimens, activeScenario = "standard", 
       </div>
 
       <div style={{ background: "var(--chip-bg)", padding: 14, borderRadius: 8, border: "1px solid var(--border-main)" }}>
-        <p style={{ margin: "0 0 12px 0", fontSize: 13, color: "var(--text-main)" }}><b>Selected regimen:</b> {displayedRegimen[0]}</p>
+        <p style={{ margin: "0 0 12px 0", fontSize: 14, color: "var(--text-main)" }}><b>Selected regimen:</b> {displayedRegimen[0]}</p>
 
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div>
             <p style={{ margin: 0, fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 600 }}>Selected pCR</p>
-            <p style={{ margin: "4px 0 0 0", fontSize: 20, fontWeight: 800, color: "var(--text-main)" }}>{selectedScore}%</p>
+            <p style={{ margin: "4px 0 0 0", fontSize: 22, fontWeight: 800, color: "var(--text-main)" }}>{selectedScore}%</p>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 600 }}>Δ vs Standard</p>
-            <p style={{ margin: "4px 0 0 0", fontSize: 20, fontWeight: 800, color: "var(--text-main)" }}>{delta >= 0 ? `+${delta}` : delta}%</p>
+            <p style={{ margin: "4px 0 0 0", fontSize: 22, fontWeight: 800, color: "var(--text-main)" }}>{delta >= 0 ? `+${delta}` : delta}%</p>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 600 }}>Standard pCR</p>
-            <p style={{ margin: "4px 0 0 0", fontSize: 20, fontWeight: 800, color: "var(--text-main)" }}>{baseScore}%</p>
+            <p style={{ margin: "4px 0 0 0", fontSize: 22, fontWeight: 800, color: "var(--text-main)" }}>{baseScore}%</p>
           </div>
         </div>
-        <p style={{ margin: "14px 0 0 0", fontSize: 11, color: "var(--text-muted)" }}>Using precomputed cohort predictions from the selected JSON.</p>
+        <p style={{ margin: "14px 0 0 0", fontSize: 12, color: "var(--text-muted)" }}>Using precomputed cohort predictions from the selected JSON.</p>
       </div>
 
       <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--border-main)" }}>
-        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: "var(--text-main)", cursor: "pointer" }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "var(--text-main)", cursor: "pointer" }}>
           <input
             type="checkbox"
             checked={showBlend}
             onChange={(e) => setShowBlend(e.target.checked)}
-            style={{ cursor: "pointer" }}
+            style={{ cursor: "pointer", accentColor: "#ff4b4b", width: 16, height: 16 }}
           />
           Show evidence-weighted blending (demo only)
         </label>
 
         {showBlend && (
           <div style={{ marginTop: 12, padding: 14, background: "var(--chip-bg)", borderRadius: 8, border: "1px dashed var(--border-main)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8, color: "var(--text-muted)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 8, color: "var(--text-muted)" }}>
               <span>Evidence weight (demo): {blendWeight.toFixed(2)}</span>
             </div>
 
+            {/* FIX: Slider now perfectly matches the Streamlit red accent color */}
             <input
               type="range"
               min="0"
@@ -162,13 +196,13 @@ export default function RegimenBuilder({ regimens, activeScenario = "standard", 
               step="0.05"
               value={blendWeight}
               onChange={(e) => setBlendWeight(parseFloat(e.target.value))}
-              style={{ width: "100%", cursor: "pointer", accentColor: "var(--accent-blue)" }}
+              style={{ width: "100%", cursor: "pointer", accentColor: "#ff4b4b" }}
             />
 
-            <p style={{ marginTop: 12, fontSize: 13, color: "var(--text-main)" }}>
+            <p style={{ marginTop: 12, fontSize: 14, color: "var(--text-main)" }}>
               <b>Evidence-weighted (demo):</b> <code style={{ background: "var(--input-bg)", padding: "2px 6px", borderRadius: 4, color: "var(--text-main)" }}>{blendedScore.toFixed(1)}%</code>
             </p>
-            <p style={{ margin: "6px 0 0 0", fontSize: 11, color: "var(--text-muted)" }}>
+            <p style={{ margin: "6px 0 0 0", fontSize: 12, color: "var(--text-muted)" }}>
               Demo visualization only; not a validated clinical mixing model.
             </p>
           </div>

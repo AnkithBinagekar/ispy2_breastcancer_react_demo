@@ -35,12 +35,15 @@ function App() {
   const [appMode, setAppMode] = useState("cohort"); // "cohort" | "single"
   const [hasRunInference, setHasRunInference] = useState(false);
 
+  // Vercel deployment variable fallback
+  const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/patients")
+    fetch(`${API_BASE}/patients`)
       .then((r) => r.json())
       .then((data) => {
         setPatients(data);
@@ -51,22 +54,21 @@ function App() {
   useEffect(() => {
     if (!selectedPatient) return;
 
-    fetch(`http://127.0.0.1:8000/patient/${selectedPatient}/regimens`)
+    fetch(`${API_BASE}/patient/${selectedPatient}/regimens`)
       .then((r) => r.json())
       .then(setRegimens);
 
-    fetch(`http://127.0.0.1:8000/patient/${selectedPatient}/omics`)
+    fetch(`${API_BASE}/patient/${selectedPatient}/omics`)
       .then((r) => r.json())
       .then(setOmics);
 
-    fetch(`http://127.0.0.1:8000/patient/${selectedPatient}/drivers`)
+    fetch(`${API_BASE}/patient/${selectedPatient}/drivers`)
       .then((r) => r.json())
       .then(setDrivers);
       
     setActiveScenario("standard");
   }, [selectedPatient]);
 
-  // Determine if the main dashboard should be visible
   const showDashboard = appMode === "cohort" || (appMode === "single" && hasRunInference);
 
   return (
@@ -107,44 +109,136 @@ function App() {
         <aside className="sidebar">
           <h3 style={{ marginTop: "40px" }}>Data</h3>
           
-          {/* UPDATED: Radio buttons now control the appMode state */}
-          <label>
-            <input type="radio" name="mode" checked={appMode === "cohort"} onChange={() => { setAppMode("cohort"); setHasRunInference(false); }} /> Load cohort JSON
-          </label><br/>
-          <label>
-            <input type="radio" name="mode" checked={appMode === "single"} onChange={() => { setAppMode("single"); setHasRunInference(false); }} /> Load single patient JSON
-          </label>
+          {/* 1. FIXED STREAMLIT RED RADIO BUTTONS */}
+          <div style={{ marginBottom: "16px" }}>
+            <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-main)", marginBottom: "8px" }}>Mode</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "14.5px", color: "var(--text-main)" }}>
+                <input 
+                  type="radio" 
+                  name="mode" 
+                  checked={appMode === "cohort"} 
+                  onChange={() => { setAppMode("cohort"); setHasRunInference(false); }} 
+                  style={{ accentColor: "#ff4b4b", width: "16px", height: "16px", cursor: "pointer" }} 
+                /> 
+                Load cohort JSON
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "14.5px", color: "var(--text-main)" }}>
+                <input 
+                  type="radio" 
+                  name="mode" 
+                  checked={appMode === "single"} 
+                  onChange={() => { setAppMode("single"); setHasRunInference(false); }} 
+                  style={{ accentColor: "#ff4b4b", width: "16px", height: "16px", cursor: "pointer" }} 
+                /> 
+                Load single patient JSON
+              </label>
+            </div>
+          </div>
 
-          <details style={{ marginTop: 12 }}>
+          {/* 2. FIXED STREAMLIT-STYLE EXPANDER */}
+          <details className="st-expander" style={{ marginTop: 0, marginBottom: "16px" }}>
             <summary>Path presets (from run steps)</summary>
-            <p style={{ fontSize: 12 }}>Expected cohort output (step 4):<br /><code>ispy2_top20_v7_optionB_fullcohort_with_modelA.json</code></p>
-            <p style={{ fontSize: 12 }}>Expected single patient path (step 8):<br /><code>./live_patients/patient_records/&lt;patient_id&gt;.json</code></p>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button>Use default cohort</button>
-              <button>Use sample patient</button>
+            <div className="st-expander-content" style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "12px 14px", borderTop: "1px solid var(--border-main)" }}>
+              <div>
+                <p style={{ fontSize: 13, margin: "0 0 4px 0", color: "var(--text-main)" }}>Expected cohort output (step 4):</p>
+                <code style={{ fontSize: 12, color: "var(--text-muted)", background: "var(--input-bg)", padding: "2px 6px", borderRadius: "4px", wordBreak: "break-all" }}>ispy2_top20_v7_optionB_fullcohort_with_modelA.json</code>
+              </div>
+              <div>
+                <p style={{ fontSize: 13, margin: "0 0 4px 0", color: "var(--text-main)" }}>Expected single patient path (step 8):</p>
+                <code style={{ fontSize: 12, color: "var(--text-muted)", background: "var(--input-bg)", padding: "2px 6px", borderRadius: "4px", wordBreak: "break-all" }}>./live_patients/patient_records/&lt;patient_id&gt;.json</code>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
+                <button style={{ background: "var(--bg-card)", color: "var(--text-main)", border: "1px solid var(--border-main)", borderRadius: "6px", padding: "6px", cursor: "pointer", fontSize: "13.5px" }}>Use default cohort</button>
+                <button style={{ background: "var(--bg-card)", color: "var(--text-main)", border: "1px solid var(--border-main)", borderRadius: "6px", padding: "6px", cursor: "pointer", fontSize: "13.5px" }}>Use sample patient</button>
+              </div>
             </div>
           </details>
 
-          <p style={{ marginTop: 12 }}>Cohort JSON path</p>
-          <input type="text" defaultValue="ispy2_top20_v7_optionB_fullcohort_with_modelA.json" />
-          <p style={{ marginTop: 12 }}>Single patient JSON path</p>
-          <input type="text" defaultValue="./live_patients/patient_records/382853.json" />
-
-          <p style={{ fontSize: 12, marginTop: 12 }}>Single-patient mode: click Run inference to generate predictions.</p>
+          <div style={{ marginBottom: "12px" }}>
+            <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-main)", margin: "0 0 6px 0" }}>Cohort JSON path</p>
+            <input type="text" defaultValue="ispy2_top20_v7_optionB_fullcohort_with_modelA.json" />
+          </div>
           
-          {/* UPDATED: Sidebar Run Inference button */}
-          {appMode === "single" && !hasRunInference && (
+          <div style={{ marginBottom: "12px" }}>
+            <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-main)", margin: "0 0 6px 0" }}>Single patient JSON path</p>
+            <input type="text" defaultValue="./live_patients/patient_records/382853.json" />
+          </div>
+
+          {/* ... Run inference controls ... */}
+          <p style={{ fontSize: 13, marginTop: 16, marginBottom: 8, color: "var(--text-main)" }}>Single-patient mode: click Run inference to generate predictions.</p>
+          <button 
+            onClick={() => setHasRunInference(true)}
+            style={{ width: "100%", background: "var(--bg-card)", color: "var(--text-main)", border: "1px solid var(--border-main)", borderRadius: "6px", padding: "8px", cursor: "pointer", fontWeight: 500 }}
+          >
+            Run inference
+          </button>
+          
+          <hr />
+
+          <h4>Optional: Live Model-A scoring</h4>
+          <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "14.5px", color: "var(--text-main)", marginBottom: "12px" }}>
+            <input type="checkbox" style={{ accentColor: "#ff4b4b", width: "16px", height: "16px", cursor: "pointer" }} /> 
+            Enable Model-A scoring
+          </label>
+          
+          <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-main)", margin: "0 0 6px 0" }}>Models dir</p>
+          <input type="text" defaultValue="./out/models" />
+          
+          <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-main)", margin: "0 0 6px 0", marginTop: "8px" }}>Infer script</p>
+          <input type="text" defaultValue="./03_infer_modelA.py" />
+          
+          <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-main)", margin: "0 0 6px 0", marginTop: "8px" }}>Regimen vocab (optional)</p>
+          <input type="text" defaultValue="./regimen_vocab.json" />
+          
+          <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-main)", margin: "0 0 6px 0", marginTop: "8px" }}>Use modalities</p>
+          <input type="text" defaultValue="mrna,rppa" />
+          
+          <hr />
+
+          <h4>Display</h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "14.5px", color: "var(--text-main)" }}>
+              <input type="checkbox" style={{ accentColor: "#ff4b4b", width: "16px", height: "16px", cursor: "pointer" }} /> 
+              Show regimen leaderboard (table)
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "14.5px", color: "var(--text-main)" }}>
+              <input type="checkbox" style={{ accentColor: "#ff4b4b", width: "16px", height: "16px", cursor: "pointer" }} /> 
+              Show debug JSON
+            </label>
+          </div>
+
+          <details className="st-expander" style={{ marginTop: "16px" }}>
+            <summary>Inputs used (demo)</summary>
+            <div className="st-expander-content">
+              <ul style={{ margin: "0", paddingLeft: "18px", color: "var(--text-main)", fontSize: "14px", lineHeight: "1.6" }}>
+                <li>Regimen probabilities</li>
+                <li>Baseline omics (mRNA / RPPA)</li>
+                <li>Clinical context</li>
+              </ul>
+            </div>
+          </details>
+        </aside>
+      )}
+
+      <main className="main-content" style={{ paddingLeft: !isSidebarOpen ? "50px" : "32px", paddingTop: "32px" }}>
+        
+        <h1 style={{ marginTop: "8px", marginBottom: "16px" }}>I-SPY2 Breast Cancer Digital Twin Demo</h1>
+        
+        <p style={{ fontSize: "14.5px", color: "var(--text-main)", marginBottom: appMode === "single" ? "8px" : "24px", lineHeight: 1.5 }}>
+          <b>Core value proposition:</b> rank likely responders and quantify regimen what-ifs in seconds using multimodal baseline data (demo).
+        </p>
+
+        {appMode === "single" && !hasRunInference && (
           <div style={{ marginBottom: "24px" }}>
             <p style={{ fontSize: "14.5px", color: "var(--text-main)", marginBottom: "16px" }}>
               <b>Single-patient mode:</b> load the patient JSON, then click <b>Run inference</b> to generate predictions.
             </p>
             <button 
               onClick={async () => {
-                // 1. Mark as loading
                 setHasRunInference(true); 
                 try {
-                  // 2. Send the sidebar paths to the FastAPI backend
-                  const res = await fetch("http://127.0.0.1:8000/run-inference", {
+                  const res = await fetch(`${API_BASE}/run-inference`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -158,7 +252,6 @@ function App() {
                   const json = await res.json();
                   
                   if (json.status === "success") {
-                    // 3. Override dashboard data with the live ML results
                     setRegimens(json.data.trial_regimen_prediction || {});
                     setOmics({
                       mrna: json.data.omics?.mRNA?.z_scores || {},
@@ -182,63 +275,9 @@ function App() {
             </button>
           </div>
         )}
-          <hr />
 
-          <h4>Optional: Live Model-A scoring</h4>
-          <label><input type="checkbox" /> Enable Model-A scoring</label>
-          <p>Models dir</p><input type="text" defaultValue="./out/models" />
-          <p>Infer script</p><input type="text" defaultValue="./03_infer_modelA.py" />
-          <p>Regimen vocab (optional)</p><input type="text" defaultValue="./regimen_vocab.json" />
-          <p>Use modalities</p><input type="text" defaultValue="mrna,rppa" />
-          <hr />
-
-          <h4>Display</h4>
-          <label><input type="checkbox" /> Show regimen leaderboard (table)</label><br/>
-          <label><input type="checkbox" /> Show debug JSON</label>
-
-          <details style={{ marginTop: 12 }}>
-            <summary>Inputs used (demo)</summary>
-            <ul>
-              <li>Regimen probabilities</li>
-              <li>Baseline omics (mRNA / RPPA)</li>
-              <li>Clinical context</li>
-            </ul>
-          </details>
-        </aside>
-      )}
-
-      <main className="main-content" style={{ paddingLeft: !isSidebarOpen ? "50px" : "32px", paddingTop: "32px" }}>
-        
-        <h1 style={{ marginTop: "8px", marginBottom: "16px" }}>I-SPY2 Breast Cancer Digital Twin Demo</h1>
-        
-        {/* NEW: Dynamic introductory text based on mode */}
-        <p style={{ fontSize: "14.5px", color: "var(--text-main)", marginBottom: appMode === "single" ? "8px" : "24px", lineHeight: 1.5 }}>
-          <b>Core value proposition:</b> rank likely responders and quantify regimen what-ifs in seconds using multimodal baseline data (demo).
-        </p>
-
-        {/* NEW: Conditional 'Run Inference' section for Single Patient mode */}
-        {appMode === "single" && !hasRunInference && (
-          <div style={{ marginBottom: "24px" }}>
-            <p style={{ fontSize: "14.5px", color: "var(--text-main)", marginBottom: "16px" }}>
-              <b>Single-patient mode:</b> load the patient JSON, then click <b>Run inference</b> to generate predictions.
-            </p>
-            <button 
-              onClick={() => setHasRunInference(true)}
-              style={{
-                background: "var(--bg-card)", color: "var(--text-main)", border: "1px solid var(--border-main)",
-                borderRadius: "8px", padding: "6px 14px", cursor: "pointer", fontWeight: 400, fontSize: "14.5px",
-                boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
-              }}
-            >
-              Run inference
-            </button>
-          </div>
-        )}
-
-        {/* CONDITIONALLY RENDERED DASHBOARD */}
         {showDashboard && (
           <>
-            {/* FIXED: Select patient moved to full width above the columns */}
             <div style={{ marginBottom: 24 }}>
               <div style={{ fontSize: 14, marginBottom: 6, color: "var(--text-main)" }}>Select patient</div>
               <select 
@@ -251,7 +290,6 @@ function App() {
             </div>
 
             <section className="row-3col">
-              {/* LEFT: Omics */}
               <div>
                 <PanelHeader title="OMICS PROFILE (BASELINE)" type="bright" />
                 <div style={{ textAlign: "center", marginBottom: -10 }}>
@@ -263,7 +301,6 @@ function App() {
                 <DriversPanel drivers={drivers} omics={omics} />
               </div>
 
-              {/* MIDDLE: Data & Alignment */}
               <div>
                 <PanelHeader title="PATIENT DATA" type="top" />
                 <PatientData patientId={selectedPatient} subtype={omics?.subtype} arm={omics?.arm} />
@@ -277,7 +314,6 @@ function App() {
                 <MechanisticEvidence drivers={drivers} omics={omics} regimens={regimens} />
               </div>
 
-              {/* RIGHT: Response Prediction */}
               <div>
                 <PanelHeader title="RESPONSE PREDICTION" type="top" />
                 <ResponseCard 
@@ -304,11 +340,9 @@ function App() {
             </section>
 
             <RegimenLeaderboard regimens={regimens} />
-
             <AuditProvenance />
           </>
         )}
-
       </main>
     </div>
   );
