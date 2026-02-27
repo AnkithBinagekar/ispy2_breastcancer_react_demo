@@ -1,533 +1,344 @@
 /* frontend/src/App.css */
 
-/* ================= LAYOUT ================= */
+:root {
+  /* Core Colors */
+  --bg-main: #0b1120; 
+  --bg-card: #1e293b; 
+  --bg-sidebar: #0f172a;
+  --border-main: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-blue: #3b82f6;
+  
+  --hero-bg: linear-gradient(135deg, #1d4ed8, #3b82f6);
+  --card-radius: 14px;
+}
+
 .app-root {
-  display: flex;
+  background-color: var(--bg-main);
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* ================= SIDEBAR ================= */
-.sidebar {
-  width: 320px;
-  background: var(--bg-sidebar);
-  border-right: 1px solid var(--border-main);
-  padding: 24px 18px;
-  transition: all 0.3s ease;
+/* ================= TOP NAV BAR ================= */
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-main);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* ================= MAIN ================= */
-.main-content {
-  flex: 1;
-  padding: 32px 48px;
-  max-width: 1280px;
-  margin: 0 auto;
-  transition: padding-left 0.3s ease;
-}
-
-.main-content h1 {
-  font-size: 34px;
-  font-weight: 700;
-  margin-bottom: 24px;
-  color: var(--text-main);
-}
-
-.row-3col {
-  display: grid;
-  grid-template-columns: 1.15fr 1fr 1.05fr;
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-.row-2col {
-  display: grid;
-  grid-template-columns: 1.25fr 1fr;
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-/* ================= EXACT STREAMLIT PILL HEADERS ================= */
-.panel-header {
-  border-radius: 18px;
-  padding: 12px 16px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow-panel);
-  transition: all 0.3s ease;
-}
-
-.panel-normal {
-  background: var(--panel-bg);
-  border: 1px solid var(--border-main);
-}
-
-.panel-top {
-  background: var(--panel-top-bg);
-  border: 1px solid var(--border-main);
-}
-
-.panel-bright {
-  background: var(--panel-bright-bg);
-  border: 1px solid var(--border-bright);
-}
-
-.panel-title {
+.nav-title {
   margin: 0;
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-/* ================= STREAMLIT NATIVE EXPANDER ================= */
-.st-expander {
+.nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ================= CUSTOM DROPDOWNS ================= */
+select {
+  appearance: none; 
+  background-color: var(--bg-card);
+  color: var(--text-main);
   border: 1px solid var(--border-main);
   border-radius: 8px;
-  background: transparent;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  transition: all 0.3s ease;
+  padding: 10px 36px 10px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
 }
 
-.st-expander summary {
-  padding: 10px 14px;
-  font-size: 14.5px;
-  font-weight: 400;
+select:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* ================= MAIN DASHBOARD GRID ================= */
+.dashboard-container {
+  padding: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.row-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.row-visuals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.row-placeholders {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+/* ================= CARDS ================= */
+.exec-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-main);
+  border-radius: var(--card-radius);
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-top: 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-main);
+  padding-bottom: 12px;
+}
+
+/* ================= HERO KPI TILE ================= */
+.hero-kpi-card {
+  background: var(--hero-bg);
+  border-radius: var(--card-radius);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
+}
+
+.kpi-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.kpi-value {
+  font-size: 72px;
+  font-weight: 800;
+  color: white;
+  line-height: 1;
+  margin: 0 0 16px 0;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.kpi-regimen {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ================= ACCORDIONS ================= */
+.accordion-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.exec-accordion {
+  background: var(--bg-card);
+  border: 1px solid var(--border-main);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.exec-accordion summary {
+  padding: 16px 20px;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--text-main);
   cursor: pointer;
   list-style: none;
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  background: rgba(255, 255, 255, 0.02);
 }
 
-.st-expander summary::before {
-  content: '▶';
-  font-size: 10px;
-  margin-right: 10px;
-  color: var(--text-muted);
+.exec-accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+/* THE FIX: Added inline-block and a sleek SVG chevron */
+.exec-accordion summary::after {
+  content: '';
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='9 18 15 12 9 6'%3e%3c/polyline%3e%3c/svg%3e");
+  background-position: center;
+  background-repeat: no-repeat;
   transition: transform 0.2s ease;
 }
 
-.st-expander[open] summary::before {
+.exec-accordion[open] summary::after {
   transform: rotate(90deg);
 }
 
-.st-expander-content {
-  padding: 10px 14px;
+.exec-accordion-content {
+  padding: 20px;
   border-top: 1px solid var(--border-main);
-  font-size: 14.5px;
+  background: var(--bg-main);
 }
-
-/* ================= RESPONSE HERO TILE ================= */
-.hero {
-  background: var(--hero-bg);
-  border: 1px solid var(--hero-border);
-  border-radius: 18px;
-  padding: 18px 18px 16px 18px;
-  color: var(--hero-text);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  margin-bottom: 16px;
+/* ================= PLOTLY FIX ================= */
+.chart-box {
+  width: 100%;
+  height: 320px;
+  position: relative;
+  overflow: visible !important; 
 }
+.chart-box > div { width: 100% !important; height: 100% !important; }
+.js-plotly-plot, .plotly, .js-plotly-plot .plot-container { overflow: visible !important; }
 
-.hero-badge {
-  display: inline-block;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.86);
-  border-radius: 999px;
-  padding: 5px 10px;
-  font-size: 12.5px;
-  letter-spacing: 0.02em;
-}
+/* ================= CHIPS ================= */
+.chip { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; border: 1px solid rgba(255, 255, 255, 0.16); margin-right: 8px; }
+.chip-high { background: rgba(68, 225, 170, 0.14); color: rgba(208, 255, 238, 0.95); border-color: rgba(68, 225, 170, 0.34); }
+.chip-mid { background: rgba(255, 200, 80, 0.10); color: rgba(255, 235, 205, 0.92); border-color: rgba(255, 200, 80, 0.28); }
+.chip-low { background: rgba(255, 95, 115, 0.10); color: rgba(255, 220, 226, 0.92); border-color: rgba(255, 95, 115, 0.28); }
 
-.hero-kpi {
-  font-size: 51px;
-  font-weight: 900;
-  margin: 10px 0 8px 0;
-  line-height: 1;
-}
+.driver-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-main); background: rgba(255, 255, 255, 0.03); margin: 8px 0; font-size: 14px; font-weight: 600; }
 
-.hero-sub {
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 14.5px;
-  line-height: 1.3;
-}
+.placeholder-card { border: 1px dashed var(--border-main); background: rgba(255, 255, 255, 0.01); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; color: var(--text-muted); }
 
-.hero-reg {
-  margin-top: 10px;
-  font-weight: 800;
-  font-size: 16.5px;
-  color: #eaf3ff;
-  background: rgba(0, 0, 0, 0.20);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  padding: 8px 10px;
-  border-radius: 12px;
-}
+/* ================= DATAFRAME ================= */
+.st-dataframe-wrapper { border: 1px solid var(--border-main); border-radius: 8px; overflow: hidden; background: var(--bg-card); margin-top: 10px; }
+.st-dataframe { width: 100%; border-collapse: collapse; text-align: left; font-size: 14.5px; }
+.st-dataframe th { padding: 10px 14px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-main); background: var(--bg-sidebar); }
+.st-dataframe td { padding: 10px 14px; color: var(--text-main); border-bottom: 1px solid var(--border-main); }
 
-/* ================= IMPACT BOX ================= */
-.impactBox {
-  margin-top: 14px;
-  padding: 10px 12px;
+/* ================= SEGMENTED CONTROLS ================= */
+.segmented-control {
+  display: flex;
+  background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--border-main);
-  background: rgba(255, 255, 255, 0.045);
-  border-radius: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  width: fit-content;
 }
 
-.impactTitle {
+.segmented-control label {
+  padding: 8px 16px;
   font-size: 13.5px;
-  font-weight: 750;
-  letter-spacing: 0.2px;
-  margin-bottom: 6px;
-  color: var(--text-main);
-}
-
-.impactRow {
-  display: flex;
-  gap: 10px;
-}
-
-.impactItem {
-  flex: 1;
-  padding: 8px 10px;
-  border: 1px solid rgba(135,180,255,0.20);
-  background: var(--bg-card);
-  border-radius: 12px;
-  transition: all 0.2s ease;
-}
-
-.impactItem.active {
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 0 2px rgba(85, 184, 255, 0.16);
-}
-
-.impactLabel {
-  display: block;
-  font-size: 12px;
+  font-weight: 600;
   color: var(--text-muted);
-  margin-bottom: 2px;
-}
-
-.impactVal {
-  font-size: 17.5px;
-  font-weight: 800;
-  color: var(--text-main);
-}
-
-/* ================= SCENARIO BARS ================= */
-.whatif-row {
-  display: flex;
-  gap: 10px;
-  margin: 16px 0;
-}
-
-.whatif {
-  flex: 1;
-  padding: 6px 0;
-  border-radius: 6px;
-  border: 1px solid var(--border-main);
-  background: transparent;
-  color: var(--text-main);
-  font-size: 12.5px;
   cursor: pointer;
-}
-
-.whatif.active {
-  background: var(--accent-blue);
-  color: white;
-  border-color: var(--accent-blue);
-}
-
-.scenario-bars {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.scenario-row {
+  border-right: 1px solid var(--border-main);
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 15px;
-  color: var(--text-main);
+  justify-content: center;
+  margin: 0;
 }
 
-.scenario-row > span:first-child {
-  width: 92px;
-  font-weight: 850;
+.segmented-control label:last-child {
+  border-right: none;
 }
 
-.scenario-bar-bg {
-  flex: 1;
-  height: 10px;
-  background: var(--bar-bg);
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+.segmented-control input[type="radio"] {
+  display: none; 
+}
+
+.segmented-control label:has(input:checked) {
+  background: var(--accent-blue);
+  color: white;
+}
+/* ================= INNER EXPANDERS (st-expander fix) ================= */
+.st-expander, .st-expander details {
+  border: 1px solid var(--border-main);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.15);
+  margin-top: 12px;
   overflow: hidden;
-  transition: all 0.3s ease;
 }
 
-.scenario-bar-bg.active-bar {
-  outline: 1px solid rgba(120, 210, 255, 0.65);
-  box-shadow: 0 0 10px rgba(120, 210, 255, 0.28);
-}
-
-.scenario-bar-fill {
-  background: var(--bar-fill);
-  height: 100%;
-  border-radius: 999px;
-}
-
-.scenario-val {
-  width: 64px;
-  text-align: right;
-  font-weight: 900;
-  font-size: 15.5px;
-}
-
-/* ================= DRIVER ROWS ================= */
-.driver-row {
+/* Target the summary no matter how the React component wraps it */
+.st-expander summary {
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  list-style: none; /* Kills default arrow in Firefox */
+  cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 9px 10px;
-  border-radius: 12px;
-  border: 1px solid var(--border-main);
-  background: var(--chip-bg);
-  margin: 8px 0;
-  font-size: 15.5px;
-  font-weight: 820;
-  color: var(--text-main);
+  margin: 0;
 }
 
-.chip {
+.st-expander summary::-webkit-details-marker {
+  display: none; /* Kills default arrow in Chrome/Safari */
+}
+
+/* Restores the sleek SVG Chevron */
+.st-expander summary::after {
+  content: '';
   display: inline-block;
-  padding: 2px 9px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 900;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='9 18 15 12 9 6'%3e%3c/polyline%3e%3c/svg%3e");
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: transform 0.2s ease;
 }
 
-/* Base Light Mode Chips */
-.chip-high {
-  background: #dcfce7;
-  color: #166534;
-  border-color: #bbf7d0;
+/* THE FIX: Bulletproof rotation selector catches the [open] state anywhere inside */
+.st-expander[open] > summary::after,
+.st-expander details[open] > summary::after,
+.st-expander:has(details[open]) summary::after {
+  transform: rotate(90deg) !important;
 }
 
-.chip-mid {
-  background: #fef9c3;
-  color: #854d0e;
-  border-color: #fef08a;
-}
-
-.chip-low {
-  background: #fee2e2;
-  color: #991b1b;
-  border-color: #fecaca;
-}
-
-/* Dark Mode Chip Overrides */
-[data-theme='dark'] .chip-high {
-  background: rgba(68, 225, 170, 0.14);
-  color: rgba(208, 255, 238, 0.95);
-  border-color: rgba(68, 225, 170, 0.34);
-}
-
-[data-theme='dark'] .chip-mid {
-  background: rgba(255, 200, 80, 0.10);
-  color: rgba(255, 235, 205, 0.92);
-  border-color: rgba(255, 200, 80, 0.28);
-}
-
-[data-theme='dark'] .chip-low {
-  background: rgba(255, 95, 115, 0.10);
-  color: rgba(255, 220, 226, 0.92);
-  border-color: rgba(255, 95, 115, 0.28);
-}
-
-/* ================= REGIMEN BUILDER ================= */
-.rb-scenario-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.rb-btn {
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--border-main);
-  background: var(--bg-card);
-  color: var(--text-main);
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.rb-btn.active {
-  background: var(--accent-blue);
-  color: white;
-  border-color: var(--accent-blue);
-}
-
-.rb-btn:hover:not(.active) {
-  background: var(--input-bg);
-}
-
-/* Sidebar & General spacing */
-p {
-  line-height: 1.5;
-  margin: 8px 0;
-  font-size: 15px;
-  color: var(--text-main);
-}
-
-/* ================= PLOTLY CHART CONTAINER FIX ================= */
-.chart-box {
-  width: 100%;
-  height: 340px; /* FIX: Locked strict height stops the redraw jumping */
-  position: relative;
-  
-  /* FIX: Removed 'display: flex' as it conflicts with Plotly's absolute positioning */
-  
-  /* THIS IS THE MAGIC BULLET: Stops the CSS container from chopping the text */
-  overflow: visible !important; 
-}
-
-.chart-box > div {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* Forces Plotly's internal wrappers to also allow text overflow */
-.js-plotly-plot, .plotly, .js-plotly-plot .plot-container {
-  overflow: visible !important;
-}
-
-.sidebar h3 {
-  font-size: 20px;
-  margin-bottom: 10px;
-  color: var(--text-main);
-}
-
-.sidebar h4 {
-  font-size: 16px;
-  margin-top: 14px;
-  margin-bottom: 6px;
-  color: var(--text-main);
-}
-
-.sidebar label {
-  font-size: 14.5px;
-  color: var(--text-main);
-}
-
-.sidebar p {
-  font-size: 14.5px;
-  margin: 6px 0;
-  color: var(--text-main);
-}
-
-.sidebar input[type="text"] {
-  width: 100%;
-  margin-bottom: 10px;
-  background: var(--input-bg);
-  color: var(--text-main);
-  border: 1px solid var(--border-main);
-  border-radius: 6px;
-  padding: 8px 12px;
-}
-
-.sidebar button {
-  width: 100%;
-  margin-top: 8px;
-}
-
-.sidebar details {
-  font-size: 14px;
-  color: var(--text-main);
-}
-
-.sidebar details p {
-  font-size: 13.5px;
-  color: var(--text-muted);
-}
-
-.sidebar details summary {
-  cursor: pointer;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: var(--text-main);
-}
-
-.sidebar hr {
-  margin: 16px 0;
-  border: 0;
+.st-expander-content {
+  padding: 16px;
   border-top: 1px solid var(--border-main);
-}
-
-@media (max-width: 1100px) {
-  .row-3col {
-    grid-template-columns: 1.4fr 1fr 1fr;
-  }
-  .row-2col {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ================= DATAFRAME (STREAMLIT NATIVE REPLICA) ================= */
-.st-dataframe-wrapper {
-  border: 1px solid var(--border-main);
-  border-radius: 8px;
-  overflow: hidden;
-  background: var(--bg-card);
-  margin-top: 10px;
-}
-
-.st-dataframe-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  gap: 14px;
-  padding: 8px 14px;
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border-main);
-  color: var(--text-muted);
-}
-
-.st-dataframe-toolbar svg {
-  width: 15px;
-  height: 15px;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.st-dataframe-toolbar svg:hover {
+  font-size: 14px;
   color: var(--text-main);
-}
-
-.st-dataframe {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  font-size: 14.5px;
-}
-
-.st-dataframe th {
-  padding: 10px 14px;
-  font-weight: 600;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-main);
-  background: var(--bg-sidebar); 
-}
-
-.st-dataframe td {
-  padding: 10px 14px;
-  color: var(--text-main);
-  border-bottom: 1px solid var(--border-main);
-}
-
-.st-dataframe tr:last-child td {
-  border-bottom: none;
 }

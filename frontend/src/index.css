@@ -1,101 +1,19 @@
-/* frontend/src/index.css */
-
+/* frontend/src/index.css - CSS RESET */
 :root {
-  color-scheme: light;
-  /* STREAMLIT LIGHT THEME */
-  --bg-root: #f0f2f6;
-  --bg-sidebar: #f0f2f6; 
-  
-  --panel-bg: #ffffff;
-  --panel-top-bg: #ffffff;
-  --panel-bright-bg: #ffffff;
-  --border-main: rgba(49, 51, 63, 0.2);
-  --border-bright: rgba(49, 51, 63, 0.2);
-  
-  --text-main: #31333F;
-  --text-muted: #808495; 
-  --accent-blue: #2563eb;
-  
-  --hero-bg: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  --hero-border: rgba(255, 255, 255, 0.2);
-  --hero-text: #ffffff;
-  
-  --bar-bg: rgba(49, 51, 63, 0.1);
-  --bar-fill: linear-gradient(90deg, #60a5fa 0%, #3b82f6 100%);
-  --shadow-panel: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --input-bg: #ffffff;
-  --chip-bg: #f8fafc;
-  
-  /* NEW: Solid colors to force native OS dropdowns to behave */
-  --dropdown-bg: #ffffff;
-  --dropdown-text: #31333F;
-}
-
-[data-theme='dark'] {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   color-scheme: dark;
-  /* STREAMLIT DARK THEME */
-  --bg-root: radial-gradient(1200px 600px at 40% 0%, rgba(77,182,255,0.10), transparent 55%),
-             radial-gradient(1200px 600px at 80% 10%, rgba(142,67,255,0.08), transparent 60%),
-             linear-gradient(180deg, #060a10 0%, #0a0f1f 45%, #070b12 100%);
-  --bg-sidebar: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-  
-  --panel-bg: rgba(255, 255, 255, 0.082);
-  --panel-top-bg: linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.06) 60%, rgba(85,184,255,0.10) 100%);
-  --panel-bright-bg: rgba(255, 255, 255, 0.118);
-  --border-main: rgba(255, 255, 255, 0.15);
-  --border-bright: rgba(135,180,255,0.26);
-  
-  --text-main: rgba(255, 255, 255, 0.92);
-  --text-muted: rgba(255, 255, 255, 0.78);
-  --accent-blue: #55b8ff;
-  
-  --hero-bg: linear-gradient(135deg, rgba(77,182,255,0.20) 0%, rgba(47,140,255,0.10) 100%);
-  --hero-border: rgba(77, 182, 255, 0.28);
-  --hero-text: #ffffff;
-  
-  --bar-bg: rgba(255, 255, 255, 0.08);
-  --bar-fill: linear-gradient(90deg, rgba(85,184,255,0.20) 0%, rgba(85,184,255,0.72) 55%, rgba(141,211,255,0.92) 100%);
-  --shadow-panel: 0 16px 42px rgba(0, 0, 0, 0.36);
-  --input-bg: rgba(255, 255, 255, 0.055);
-  --chip-bg: rgba(255, 255, 255, 0.055);
-  
-  /* NEW: Solid colors to force native OS dropdowns to behave */
-  --dropdown-bg: #0a0f1f;
-  --dropdown-text: #ffffff;
 }
-
-/* RESET */
-*, *::before, *::after { box-sizing: border-box; }
 
 html, body, #root {
-  width: 100%;
-  min-height: 100vh;
   margin: 0;
   padding: 0;
-  background: var(--bg-root);
-  color: var(--text-main);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
-  overflow-x: hidden;
-  overflow-y: auto;
-  transition: background 0.3s ease, color 0.3s ease;
+  width: 100%;
+  min-height: 100vh;
+  /* Deep Slate background from your Segmentation UI */
+  background-color: #0b1120; 
+  color: #f8fafc;
 }
 
-input, select, button { font-family: inherit; }
-input[type="radio"], input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--accent-blue); }
-
-select, button {
-  background: var(--input-bg);
-  color: var(--text-main);
-  border: 1px solid var(--border-main);
-  border-radius: 6px;
-  padding: 6px 10px;
-  transition: all 0.3s ease;
+*, *::before, *::after {
+  box-sizing: border-box;
 }
-
-/* FIX: Forces the dropdown menu layer to use a solid background */
-select option {
-  background-color: var(--dropdown-bg);
-  color: var(--dropdown-text);
-}
-
-h1, h2, h3 { margin: 0; }

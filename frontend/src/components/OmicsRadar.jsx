@@ -7,7 +7,6 @@ export default function OmicsRadar({ omics, theme }) {
   const containerRef = useRef(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Listen for native escape key exits
   useEffect(() => {
     const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", handleFullscreenChange);
@@ -24,7 +23,6 @@ export default function OmicsRadar({ omics, theme }) {
 
   if (!omics || !omics.mrna) return null;
 
-  // Exact 5 axes required to match Streamlit shape
   const ORDER = [
     "proliferation",
     "immune_cytotoxic",
@@ -53,7 +51,6 @@ export default function OmicsRadar({ omics, theme }) {
   const thetaClosed = [...theta, theta[0]];
   const rClosed = [...r, r[0]];
 
-  // Exact Streamlit Theme Colors
   const fontColor = theme === "dark" ? "rgba(255, 255, 255, 0.85)" : "#31333F";
   const gridColor = theme === "dark" ? "rgba(255, 255, 255, 0.15)" : "rgba(49, 51, 63, 0.15)";
   const fillColor = theme === "dark" ? "rgba(77,182,255,0.22)" : "rgba(37,99,235,0.22)";
@@ -64,46 +61,17 @@ export default function OmicsRadar({ omics, theme }) {
       ref={containerRef} 
       className="radar-container" 
       style={{ 
-        width: "100%", 
-        height: "100%", 
-        position: "relative", 
-        // Force a solid background when in fullscreen so it doesn't go transparent black
+        width: "100%", height: "100%", position: "relative", 
         background: isFullscreen ? "var(--bg-card)" : "transparent",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center"
+        display: "flex", alignItems: "center", justifyContent: "center"
       }}
     >
       <style>{`
-        .fs-btn {
-          position: absolute;
-          top: 8px;
-          right: 8px;
-          width: 28px;
-          height: 28px;
-          background: var(--panel-bg);
-          border: 1px solid var(--border-main);
-          border-radius: 6px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          color: var(--text-muted);
-          opacity: 0; /* Hidden by default */
-          transition: opacity 0.2s ease, color 0.2s ease;
-          z-index: 10;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        /* Reveal on hover */
-        .radar-container:hover .fs-btn {
-          opacity: 1; 
-        }
-        .fs-btn:hover {
-          color: var(--text-main);
-        }
+        .fs-btn { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; background: var(--panel-bg); border: 1px solid var(--border-main); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); opacity: 0; transition: opacity 0.2s ease, color 0.2s ease; z-index: 10; }
+        .radar-container:hover .fs-btn { opacity: 1; }
+        .fs-btn:hover { color: var(--text-main); }
       `}</style>
 
-      {/* Hover Toolbar Button */}
       <div className="fs-btn" onClick={toggleFullscreen} title={isFullscreen ? "Exit fullscreen" : "View fullscreen"}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           {isFullscreen ? (
@@ -122,37 +90,22 @@ export default function OmicsRadar({ omics, theme }) {
             theta: thetaClosed,
             fill: "toself",
             fillcolor: fillColor,
+            mode: "lines+markers", /* Enables the glowing dots */
+            marker: { color: "#60a5fa", size: 6, line: { color: "#ffffff", width: 1 } },
             line: { color: lineColor, width: 2.2 },
             hoverinfo: "theta+r",
-            cliponaxis: false // Lets text overflow the SVG bounds without getting cut
+            cliponaxis: false 
           }
         ]}
         layout={{
           autosize: true,
-          // Expanded left/right margins to 90 for a bulletproof buffer
           margin: { l: 90, r: 90, t: 40, b: 40 }, 
           polar: {
             bgcolor: "rgba(0,0,0,0)", 
-            radialaxis: {
-              visible: true,
-              range: [0, 1],
-              tickvals: [0.25, 0.5, 0.75, 1], 
-              showticklabels: false,
-              gridcolor: gridColor,
-              linecolor: gridColor,
-              gridwidth: 1
-            },
-            angularaxis: {
-              tickfont: { color: fontColor, size: 11, weight: "normal" },
-              gridcolor: gridColor,
-              linecolor: gridColor,
-              gridwidth: 1,
-              tickpadding: 10
-            }
+            radialaxis: { visible: true, range: [0, 1], tickvals: [0.25, 0.5, 0.75, 1], showticklabels: false, gridcolor: gridColor, linecolor: gridColor, gridwidth: 1 },
+            angularaxis: { tickfont: { color: fontColor, size: 11, weight: "normal" }, gridcolor: gridColor, linecolor: gridColor, gridwidth: 1, tickpadding: 10 }
           },
-          paper_bgcolor: "rgba(0,0,0,0)",
-          plot_bgcolor: "rgba(0,0,0,0)",
-          showlegend: false
+          paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)", showlegend: false
         }}
         config={{ displayModeBar: false, responsive: true }}
         style={{ width: "100%", height: "100%", overflow: "visible" }} 
