@@ -133,7 +133,7 @@ function App() {
           </div>
 
           <div className="exec-card">
-            <h2 className="card-title">Therapy Simulation</h2>
+            <h2 className="card-title">Regimen Builder (What-If)</h2>
             <RegimenBuilder 
               regimens={regimens} 
               activeScenario={activeScenario} 
